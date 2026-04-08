@@ -409,6 +409,39 @@ export interface FundSummary {
 }
 
 // ── Portfolio ────────────────────────────────────────────────────────
+
+export const PORTFOLIO_STATUSES = ['active', 'exited', 'written-off'] as const
+export type PortfolioStatus = (typeof PORTFOLIO_STATUSES)[number]
+
+export interface PortfolioCompany {
+  id: string
+  dealId: string | null
+  name: string
+  sector: Sector
+  investmentDate: string
+  investmentAmount: string
+  ownershipPct: number | null
+  currentValuation: string | null
+  trlScore: number | null
+  trlDetails: Record<string, unknown> | null
+  status: PortfolioStatus
+  coInvestors: string[]
+  kpis: PortfolioKpi[]
+  createdAt: string
+  updatedAt: string
+}
+
+export interface PortfolioKpi {
+  id: string
+  companyId: string
+  period: string // e.g. "2026-Q1"
+  revenue: string | null
+  burnRate: string | null
+  headcount: number | null
+  customMetrics: Record<string, unknown>
+  submittedAt: string
+}
+
 export interface PortfolioMetrics {
   tvpiGross: number
   tvpiNet: number
@@ -419,6 +452,46 @@ export interface PortfolioMetrics {
   totalInvested: number
   totalDistributed: number
   unrealizedValue: number
+}
+
+export interface PortfolioSectorBreakdown {
+  sector: Sector
+  companyCount: number
+  totalInvested: number
+  currentValue: number
+  avgTrl: number | null
+}
+
+// ── LP Reporting ────────────────────────────────────────────────────
+
+export const REPORT_TYPES = ['quarterly', 'annual', 'capital-call', 'distribution', 'custom'] as const
+export type ReportType = (typeof REPORT_TYPES)[number]
+
+export const REPORT_STATUSES = ['draft', 'in-review', 'published'] as const
+export type ReportStatus = (typeof REPORT_STATUSES)[number]
+
+export interface QuarterlyReport {
+  id: string
+  period: string // e.g. "2026-Q1"
+  type: ReportType
+  status: ReportStatus
+  fundMetrics: PortfolioMetrics
+  sectorBreakdown: PortfolioSectorBreakdown[]
+  portfolioUpdates: PortfolioUpdate[]
+  marketCommentary: string | null
+  createdAt: string
+  updatedAt: string
+  publishedAt: string | null
+}
+
+export interface PortfolioUpdate {
+  companyId: string
+  companyName: string
+  sector: Sector
+  trlProgress: { from: number; to: number } | null
+  highlights: string[]
+  risks: string[]
+  nextMilestones: string[]
 }
 
 // ── API Response Envelope ────────────────────────────────────────────

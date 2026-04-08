@@ -9,6 +9,7 @@ const navItems = [
   { href: '/dataroom', label: 'Data Room', icon: 'R' },
   { href: '/compliance', label: 'AML/KYC', icon: 'C' },
   { href: '/portfolio', label: 'Portfolio', icon: 'P' },
+  { href: '/reporting', label: 'LP Reports', icon: 'Q' },
 ]
 
 export function Sidebar() {
