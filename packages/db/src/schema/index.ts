@@ -191,6 +191,105 @@ export const portfolioCompanies = pgTable('portfolio_companies', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 })
 
+// ── KYC Screening Records ───────────────────────────────────────────
+
+export const screeningTypeEnum = pgEnum('screening_type', [
+  'identity',
+  'ofac',
+  'pep',
+  'adverse-media',
+  'source-of-funds',
+])
+
+export const screeningResultEnum = pgEnum('screening_result', [
+  'clear',
+  'match',
+  'potential-match',
+  'pending',
+  'error',
+])
+
+export const riskLevelEnum = pgEnum('risk_level', ['low', 'medium', 'high', 'critical'])
+
+export const kycScreenings = pgTable('kyc_screenings', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  lpId: uuid('lp_id')
+    .references(() => lps.id)
+    .notNull(),
+  screeningType: screeningTypeEnum('screening_type').notNull(),
+  result: screeningResultEnum('result').notNull().default('pending'),
+  riskLevel: riskLevelEnum('risk_level'),
+  provider: varchar('provider', { length: 100 }).notNull().default('steward'),
+  providerReferenceId: varchar('provider_reference_id', { length: 255 }),
+  details: jsonb('details'),
+  screenedAt: timestamp('screened_at').defaultNow().notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+})
+
+// ── Compliance Documents ────────────────────────────────────────────
+
+export const documentTypeEnum = pgEnum('document_type', [
+  'passport',
+  'drivers-license',
+  'national-id',
+  'proof-of-address',
+  'source-of-funds-declaration',
+  'bank-statement',
+  'tax-return',
+  'corporate-registration',
+  'trust-deed',
+  'beneficial-ownership',
+])
+
+export const documentStatusEnum = pgEnum('document_status', [
+  'pending',
+  'uploaded',
+  'verified',
+  'rejected',
+  'expired',
+])
+
+export const complianceDocuments = pgTable('compliance_documents', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  lpId: uuid('lp_id')
+    .references(() => lps.id)
+    .notNull(),
+  documentType: documentTypeEnum('document_type').notNull(),
+  fileName: varchar('file_name', { length: 500 }).notNull(),
+  fileUrl: varchar('file_url', { length: 1000 }),
+  status: documentStatusEnum('status').notNull().default('pending'),
+  notes: text('notes'),
+  expiresAt: timestamp('expires_at'),
+  uploadedAt: timestamp('uploaded_at').defaultNow().notNull(),
+  reviewedAt: timestamp('reviewed_at'),
+  reviewedBy: uuid('reviewed_by').references(() => users.id),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+})
+
+// ── Monitoring Schedule ─────────────────────────────────────────────
+
+export const monitoringFrequencyEnum = pgEnum('monitoring_frequency', [
+  'daily',
+  'weekly',
+  'monthly',
+  'quarterly',
+])
+
+export const monitoringSchedule = pgTable('monitoring_schedule', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  lpId: uuid('lp_id')
+    .references(() => lps.id)
+    .notNull(),
+  frequency: monitoringFrequencyEnum('frequency').notNull().default('quarterly'),
+  lastRunAt: timestamp('last_run_at'),
+  nextRunAt: timestamp('next_run_at'),
+  isActive: boolean('is_active').notNull().default(true),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+})
+
 // ── Audit Log ────────────────────────────────────────────────────────
 
 export const auditLog = pgTable('audit_log', {

@@ -167,6 +167,84 @@ export const KYC_STATUSES = [
 ] as const
 export type KycStatus = (typeof KYC_STATUSES)[number]
 
+// ── AML/KYC Compliance (Steward Integration) ────────────────────────
+
+export const SCREENING_TYPES = ['identity', 'ofac', 'pep', 'adverse-media', 'source-of-funds'] as const
+export type ScreeningType = (typeof SCREENING_TYPES)[number]
+
+export const SCREENING_RESULTS = ['clear', 'match', 'potential-match', 'pending', 'error'] as const
+export type ScreeningResult = (typeof SCREENING_RESULTS)[number]
+
+export const RISK_LEVELS = ['low', 'medium', 'high', 'critical'] as const
+export type RiskLevel = (typeof RISK_LEVELS)[number]
+
+export const DOCUMENT_TYPES = [
+  'passport',
+  'drivers-license',
+  'national-id',
+  'proof-of-address',
+  'source-of-funds-declaration',
+  'bank-statement',
+  'tax-return',
+  'corporate-registration',
+  'trust-deed',
+  'beneficial-ownership',
+] as const
+export type ComplianceDocumentType = (typeof DOCUMENT_TYPES)[number]
+
+export const DOCUMENT_STATUSES = ['pending', 'uploaded', 'verified', 'rejected', 'expired'] as const
+export type DocumentStatus = (typeof DOCUMENT_STATUSES)[number]
+
+export const MONITORING_FREQUENCIES = ['daily', 'weekly', 'monthly', 'quarterly'] as const
+export type MonitoringFrequency = (typeof MONITORING_FREQUENCIES)[number]
+
+export interface KycScreeningRecord {
+  id: string
+  lpId: string
+  screeningType: ScreeningType
+  result: ScreeningResult
+  riskLevel: RiskLevel | null
+  provider: string
+  providerReferenceId: string | null
+  details: Record<string, unknown> | null
+  screenedAt: string
+}
+
+export interface ComplianceDocument {
+  id: string
+  lpId: string
+  documentType: ComplianceDocumentType
+  fileName: string
+  status: DocumentStatus
+  notes: string | null
+  expiresAt: string | null
+  uploadedAt: string
+  reviewedAt: string | null
+  reviewedBy: string | null
+}
+
+export interface LpOnboardingPayload {
+  name: string
+  type: LpType
+  contactEmail: string
+  contactName: string
+  location: string
+  commitmentAmount?: string
+}
+
+export interface LpComplianceSummary {
+  lpId: string
+  lpName: string
+  kycStatus: KycStatus
+  riskLevel: RiskLevel | null
+  screeningsPassed: number
+  screeningsTotal: number
+  documentsVerified: number
+  documentsRequired: number
+  lastScreenedAt: string | null
+  nextReviewAt: string | null
+}
+
 // ── Portfolio ────────────────────────────────────────────────────────
 export interface PortfolioMetrics {
   tvpiGross: number

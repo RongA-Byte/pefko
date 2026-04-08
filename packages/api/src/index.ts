@@ -3,6 +3,7 @@ import cors from '@fastify/cors'
 import helmet from '@fastify/helmet'
 import { trlRoutes } from './routes/trl.js'
 import { memoRoutes } from './routes/memos.js'
+import { complianceRoutes } from './routes/compliance.js'
 
 const app = Fastify({
   logger: {
@@ -31,6 +32,7 @@ app.get('/api/v1', async () => ({
 
 await app.register(trlRoutes)
 await app.register(memoRoutes)
+await app.register(complianceRoutes)
 
 const port = Number(process.env.PORT ?? 4000)
 const host = process.env.HOST ?? '0.0.0.0'

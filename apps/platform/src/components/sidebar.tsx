@@ -6,6 +6,7 @@ const navItems = [
   { href: '/trl', label: 'TRL Scoring', icon: 'T' },
   { href: '/memos', label: 'IC Memos', icon: 'M' },
   { href: '/lps', label: 'LP Management', icon: 'L' },
+  { href: '/compliance', label: 'AML/KYC', icon: 'C' },
   { href: '/portfolio', label: 'Portfolio', icon: 'P' },
 ]
 
