@@ -48,6 +48,12 @@ export default function LpsPage() {
         >
           AML/KYC Dashboard
         </Link>
+        <Link
+          href="/dataroom"
+          className="rounded-lg border border-[var(--color-border)] px-4 py-2 text-sm font-medium transition-colors hover:bg-[var(--color-bg-alt)]"
+        >
+          Data Room
+        </Link>
       </div>
 
       {/* LP Table Placeholder */}

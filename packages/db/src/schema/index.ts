@@ -290,6 +290,143 @@ export const monitoringSchedule = pgTable('monitoring_schedule', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 })
 
+// ── Data Room ────────────────────────────────────────────────────────
+
+export const dataRoomFolderTypeEnum = pgEnum('data_room_folder_type', [
+  'ppm',
+  'lpa',
+  'subscription-agreement',
+  'side-letter',
+  'ddq',
+  'financials',
+  'team',
+  'legal',
+  'other',
+])
+
+export const dataRoomAccessLevelEnum = pgEnum('data_room_access_level', [
+  'none',
+  'view',
+  'download',
+])
+
+export const dataRoomDocuments = pgTable('data_room_documents', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  folderType: dataRoomFolderTypeEnum('folder_type').notNull(),
+  name: varchar('name', { length: 500 }).notNull(),
+  fileName: varchar('file_name', { length: 500 }).notNull(),
+  fileUrl: varchar('file_url', { length: 1000 }),
+  version: integer('version').notNull().default(1),
+  docSendDocumentId: varchar('docsend_document_id', { length: 255 }),
+  uploadedBy: uuid('uploaded_by').references(() => users.id),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+})
+
+export const dataRoomLpAccess = pgTable('data_room_lp_access', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  lpId: uuid('lp_id')
+    .references(() => lps.id)
+    .notNull(),
+  documentId: uuid('document_id').references(() => dataRoomDocuments.id),
+  folderType: dataRoomFolderTypeEnum('folder_type'),
+  accessLevel: dataRoomAccessLevelEnum('access_level').notNull().default('view'),
+  ndaRequired: boolean('nda_required').notNull().default(true),
+  ndaSignedAt: timestamp('nda_signed_at'),
+  docSendLinkId: varchar('docsend_link_id', { length: 255 }),
+  expiresAt: timestamp('expires_at'),
+  grantedBy: uuid('granted_by').references(() => users.id),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+})
+
+export const dataRoomEngagement = pgTable('data_room_engagement', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  lpId: uuid('lp_id')
+    .references(() => lps.id)
+    .notNull(),
+  documentId: uuid('document_id')
+    .references(() => dataRoomDocuments.id)
+    .notNull(),
+  viewCount: integer('view_count').notNull().default(0),
+  totalDuration: integer('total_duration').notNull().default(0),
+  completionRate: real('completion_rate').notNull().default(0),
+  lastViewedAt: timestamp('last_viewed_at'),
+  downloadedAt: timestamp('downloaded_at'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+})
+
+// ── Fund Administration ──────────────────────────────────────────────
+
+export const capitalCallStatusEnum = pgEnum('capital_call_status', [
+  'draft',
+  'sent',
+  'partially-paid',
+  'completed',
+  'overdue',
+])
+
+export const capitalCalls = pgTable('capital_calls', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  callNumber: integer('call_number').notNull(),
+  totalAmount: numeric('total_amount', { precision: 14, scale: 2 }).notNull(),
+  dueDate: timestamp('due_date').notNull(),
+  purpose: text('purpose'),
+  status: capitalCallStatusEnum('status').notNull().default('draft'),
+  cartaCapitalCallId: varchar('carta_capital_call_id', { length: 255 }),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+})
+
+export const capitalCallLineItems = pgTable('capital_call_line_items', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  capitalCallId: uuid('capital_call_id')
+    .references(() => capitalCalls.id)
+    .notNull(),
+  lpId: uuid('lp_id')
+    .references(() => lps.id)
+    .notNull(),
+  amount: numeric('amount', { precision: 14, scale: 2 }).notNull(),
+  proRataPercentage: real('pro_rata_percentage').notNull(),
+  status: varchar('status', { length: 50 }).notNull().default('pending'),
+  paidAt: timestamp('paid_at'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+})
+
+export const distributionTypeEnum = pgEnum('distribution_type', [
+  'return-of-capital',
+  'profit',
+  'recallable',
+])
+
+export const distributions = pgTable('distributions', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  distributionNumber: integer('distribution_number').notNull(),
+  totalAmount: numeric('total_amount', { precision: 14, scale: 2 }).notNull(),
+  distributionDate: timestamp('distribution_date').notNull(),
+  type: distributionTypeEnum('type').notNull(),
+  status: varchar('status', { length: 50 }).notNull().default('draft'),
+  cartaDistributionId: varchar('carta_distribution_id', { length: 255 }),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+})
+
+export const distributionLineItems = pgTable('distribution_line_items', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  distributionId: uuid('distribution_id')
+    .references(() => distributions.id)
+    .notNull(),
+  lpId: uuid('lp_id')
+    .references(() => lps.id)
+    .notNull(),
+  amount: numeric('amount', { precision: 14, scale: 2 }).notNull(),
+  proRataPercentage: real('pro_rata_percentage').notNull(),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+})
+
 // ── Audit Log ────────────────────────────────────────────────────────
 
 export const auditLog = pgTable('audit_log', {

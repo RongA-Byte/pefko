@@ -4,6 +4,7 @@ import helmet from '@fastify/helmet'
 import { trlRoutes } from './routes/trl.js'
 import { memoRoutes } from './routes/memos.js'
 import { complianceRoutes } from './routes/compliance.js'
+import { dataRoomRoutes } from './routes/dataroom.js'
 
 const app = Fastify({
   logger: {
@@ -33,6 +34,7 @@ app.get('/api/v1', async () => ({
 await app.register(trlRoutes)
 await app.register(memoRoutes)
 await app.register(complianceRoutes)
+await app.register(dataRoomRoutes)
 
 const port = Number(process.env.PORT ?? 4000)
 const host = process.env.HOST ?? '0.0.0.0'

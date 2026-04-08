@@ -245,6 +245,94 @@ export interface LpComplianceSummary {
   nextReviewAt: string | null
 }
 
+// ── Data Room ───────────────────────────────────────────────────────
+
+export const DATA_ROOM_FOLDER_TYPES = [
+  'ppm',
+  'lpa',
+  'subscription-agreement',
+  'side-letter',
+  'ddq',
+  'financials',
+  'team',
+  'legal',
+  'other',
+] as const
+export type DataRoomFolderType = (typeof DATA_ROOM_FOLDER_TYPES)[number]
+
+export const DATA_ROOM_FOLDER_LABELS: Record<DataRoomFolderType, string> = {
+  ppm: 'Private Placement Memorandum',
+  lpa: 'Limited Partnership Agreement',
+  'subscription-agreement': 'Subscription Agreement',
+  'side-letter': 'Side Letter Template',
+  ddq: 'Due Diligence Questionnaire',
+  financials: 'Fund Financials & Projections',
+  team: 'Team Bios & Track Record',
+  legal: 'Legal Documents',
+  other: 'Other',
+}
+
+export const DATA_ROOM_ACCESS_LEVELS = ['none', 'view', 'download'] as const
+export type DataRoomAccessLevel = (typeof DATA_ROOM_ACCESS_LEVELS)[number]
+
+export interface DataRoomDocument {
+  id: string
+  folderId: string
+  folderType: DataRoomFolderType
+  name: string
+  fileName: string
+  version: number
+  docSendDocumentId: string | null
+  uploadedBy: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface DataRoomLpAccess {
+  id: string
+  lpId: string
+  documentId: string | null
+  folderType: DataRoomFolderType | null
+  accessLevel: DataRoomAccessLevel
+  ndaRequired: boolean
+  ndaSignedAt: string | null
+  docSendLinkId: string | null
+  expiresAt: string | null
+  grantedBy: string
+  createdAt: string
+}
+
+export interface DataRoomEngagement {
+  lpId: string
+  lpName: string
+  documentName: string
+  viewCount: number
+  totalDuration: number
+  completionRate: number
+  lastViewedAt: string | null
+  downloadedAt: string | null
+}
+
+// ── Fund Administration (Carta) ─────────────────────────────────────
+
+export const CAPITAL_CALL_STATUSES = ['draft', 'sent', 'partially-paid', 'completed', 'overdue'] as const
+export type CapitalCallStatus = (typeof CAPITAL_CALL_STATUSES)[number]
+
+export const DISTRIBUTION_TYPES = ['return-of-capital', 'profit', 'recallable'] as const
+export type DistributionType = (typeof DISTRIBUTION_TYPES)[number]
+
+export interface FundSummary {
+  fundName: string
+  vintage: number
+  targetSize: number
+  totalCommitments: number
+  totalCalled: number
+  totalDistributed: number
+  nav: number
+  lpCount: number
+  pendingCapitalCalls: number
+}
+
 // ── Portfolio ────────────────────────────────────────────────────────
 export interface PortfolioMetrics {
   tvpiGross: number
