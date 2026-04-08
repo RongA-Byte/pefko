@@ -427,6 +427,74 @@ export const distributionLineItems = pgTable('distribution_line_items', {
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 })
 
+// ── Co-Investors ────────────────────────────────────────────────────
+
+export const coInvestorTypeEnum = pgEnum('co_investor_type', [
+  'lead',
+  'co-lead',
+  'follow-on',
+  'strategic',
+])
+
+export const coInvestors = pgTable('co_investors', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  dealId: uuid('deal_id')
+    .references(() => deals.id)
+    .notNull(),
+  name: varchar('name', { length: 255 }).notNull(),
+  type: coInvestorTypeEnum('type').notNull(),
+  checkSize: numeric('check_size', { precision: 14, scale: 2 }),
+  contactName: varchar('contact_name', { length: 255 }),
+  contactEmail: varchar('contact_email', { length: 255 }),
+  affinityOrgId: integer('affinity_org_id'),
+  notes: text('notes'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+})
+
+// ── Deal Contacts ───────────────────────────────────────────────────
+
+export const dealContacts = pgTable('deal_contacts', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  dealId: uuid('deal_id')
+    .references(() => deals.id)
+    .notNull(),
+  name: varchar('name', { length: 255 }).notNull(),
+  role: varchar('role', { length: 255 }).notNull(),
+  email: varchar('email', { length: 255 }),
+  phone: varchar('phone', { length: 50 }),
+  affinityPersonId: integer('affinity_person_id'),
+  isPrimary: boolean('is_primary').notNull().default(false),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+})
+
+// ── LP Pipeline (CRM tracking) ──────────────────────────────────────
+
+export const lpPipelineStageEnum = pgEnum('lp_pipeline_stage', [
+  'prospecting',
+  'intro-call',
+  'data-room-access',
+  'commitment',
+  'closed',
+])
+
+export const lpPipeline = pgTable('lp_pipeline', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  lpId: uuid('lp_id')
+    .references(() => lps.id)
+    .notNull(),
+  stage: lpPipelineStageEnum('stage').notNull().default('prospecting'),
+  commitmentTarget: numeric('commitment_target', { precision: 14, scale: 2 }),
+  lastContactDate: timestamp('last_contact_date'),
+  nextFollowUp: timestamp('next_follow_up'),
+  notes: text('notes'),
+  affinityOrgId: integer('affinity_org_id'),
+  affinityListEntryId: integer('affinity_list_entry_id'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+})
+
 // ── Audit Log ────────────────────────────────────────────────────────
 
 export const auditLog = pgTable('audit_log', {

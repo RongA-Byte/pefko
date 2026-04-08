@@ -147,6 +147,81 @@ export const DILIGENCE_TEMPLATES: Record<Sector, DiligenceChecklistItem[]> = {
   ],
 }
 
+// ── LP Pipeline (Affinity CRM) ──────────────────────────────────────
+export const LP_PIPELINE_STAGES = [
+  'prospecting',
+  'intro-call',
+  'data-room-access',
+  'commitment',
+  'closed',
+] as const
+export type LpPipelineStage = (typeof LP_PIPELINE_STAGES)[number]
+
+// ── Co-Investors ────────────────────────────────────────────────────
+export const CO_INVESTOR_TYPES = ['lead', 'co-lead', 'follow-on', 'strategic'] as const
+export type CoInvestorType = (typeof CO_INVESTOR_TYPES)[number]
+
+export interface CoInvestor {
+  id: string
+  dealId: string
+  name: string
+  type: CoInvestorType
+  checkSize: string | null
+  contactName: string | null
+  contactEmail: string | null
+  affinityOrgId: number | null
+  notes: string | null
+}
+
+export interface DealContact {
+  id: string
+  dealId: string
+  name: string
+  role: string
+  email: string | null
+  phone: string | null
+  affinityPersonId: number | null
+  isPrimary: boolean
+}
+
+export interface DealSummary {
+  id: string
+  companyName: string
+  sector: Sector
+  stage: DealStage
+  trlScore: number | null
+  checkSize: string | null
+  valuation: string | null
+  leadPartner: string | null
+  coInvestorCount: number
+  affinityOrgId: number | null
+  createdAt: string
+  updatedAt: string
+}
+
+export interface DealPipelineStats {
+  totalDeals: number
+  byStage: Record<string, number>
+  bySector: Record<string, number>
+  totalCheckSize: number
+  averageTrl: number | null
+  activeDeals: number
+}
+
+export interface LpPipelineEntry {
+  id: string
+  lpId: string
+  lpName: string
+  stage: LpPipelineStage
+  commitmentTarget: string | null
+  lastContactDate: string | null
+  nextFollowUp: string | null
+  notes: string | null
+  affinityOrgId: number | null
+  createdAt: string
+  updatedAt: string
+}
+
 // ── Investor / LP ────────────────────────────────────────────────────
 export const LP_TYPES = [
   'family-office',
