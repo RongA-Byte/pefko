@@ -8,6 +8,8 @@ import {
   numeric,
   jsonb,
   pgEnum,
+  boolean,
+  real,
 } from 'drizzle-orm/pg-core'
 
 // ── Enums ────────────────────────────────────────────────────────────
@@ -40,6 +42,15 @@ export const lpTypeEnum = pgEnum('lp_type', [
   'strategic',
   'individual',
 ])
+
+export const memoTypeEnum = pgEnum('memo_type', [
+  'sourcing-note',
+  'deep-dive',
+  'ic-memo',
+  'decision',
+])
+
+export const icVoteEnum = pgEnum('ic_vote', ['invest', 'pass', 'follow-up', 'abstain'])
 
 // ── Users (internal team) ────────────────────────────────────────────
 
@@ -90,6 +101,55 @@ export const icMemos = pgTable('ic_memos', {
   diligenceChecklist: jsonb('diligence_checklist'), // configurable per sector
   decision: varchar('decision', { length: 50 }), // invest, pass, follow-up
   version: integer('version').notNull().default(1),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+})
+
+// ── TRL Rubrics (sector-specific scoring criteria) ──────────────────
+
+export const trlRubrics = pgTable('trl_rubrics', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  sector: sectorEnum('sector').notNull(),
+  level: integer('level').notNull(), // 1-9
+  label: varchar('label', { length: 255 }).notNull(),
+  description: text('description').notNull(),
+  criteria: jsonb('criteria').notNull(), // array of { criterion, weight, description }
+  isActive: boolean('is_active').notNull().default(true),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+})
+
+// ── TRL Assessments (individual deal scoring) ───────────────────────
+
+export const trlAssessments = pgTable('trl_assessments', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  dealId: uuid('deal_id')
+    .references(() => deals.id)
+    .notNull(),
+  assessorId: uuid('assessor_id')
+    .references(() => users.id)
+    .notNull(),
+  sector: sectorEnum('sector').notNull(),
+  overallLevel: integer('overall_level').notNull(), // 1-9
+  criteriaScores: jsonb('criteria_scores').notNull(), // { criterionId, score, weight, notes }[]
+  weightedScore: real('weighted_score').notNull(),
+  notes: text('notes'),
+  createdAt: timestamp('created_at').defaultNow().notNull(),
+  updatedAt: timestamp('updated_at').defaultNow().notNull(),
+})
+
+// ── IC Votes ────────────────────────────────────────────────────────
+
+export const icVotes = pgTable('ic_votes', {
+  id: uuid('id').defaultRandom().primaryKey(),
+  memoId: uuid('memo_id')
+    .references(() => icMemos.id)
+    .notNull(),
+  voterId: uuid('voter_id')
+    .references(() => users.id)
+    .notNull(),
+  vote: icVoteEnum('vote').notNull(),
+  rationale: text('rationale'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 })

@@ -25,6 +25,128 @@ export interface TrlScore {
   assessedBy: string
 }
 
+export interface TrlCriterion {
+  id: string
+  name: string
+  weight: number // 0-1, weights sum to 1 per level
+  description: string
+}
+
+export interface TrlRubric {
+  sector: Sector
+  level: number
+  label: string
+  description: string
+  criteria: TrlCriterion[]
+}
+
+export interface TrlCriterionScore {
+  criterionId: string
+  score: number // 0-10
+  weight: number
+  notes?: string
+}
+
+export interface TrlAssessment {
+  id: string
+  dealId: string
+  assessorId: string
+  sector: Sector
+  overallLevel: number
+  criteriaScores: TrlCriterionScore[]
+  weightedScore: number
+  notes?: string
+}
+
+// ── IC Memos & Voting ───────────────────────────────────────────────
+export const MEMO_TYPES = ['sourcing-note', 'deep-dive', 'ic-memo', 'decision'] as const
+export type MemoType = (typeof MEMO_TYPES)[number]
+
+export const IC_VOTES = ['invest', 'pass', 'follow-up', 'abstain'] as const
+export type IcVote = (typeof IC_VOTES)[number]
+
+export interface DiligenceChecklistItem {
+  id: string
+  category: string
+  item: string
+  completed: boolean
+  notes?: string
+  assignee?: string
+}
+
+export interface IcMemo {
+  id: string
+  dealId: string
+  type: MemoType
+  title: string
+  body: string
+  authorId: string
+  diligenceChecklist?: DiligenceChecklistItem[]
+  decision?: IcVote
+  version: number
+}
+
+export interface IcVoteRecord {
+  id: string
+  memoId: string
+  voterId: string
+  vote: IcVote
+  rationale?: string
+}
+
+// ── Default TRL Rubric Labels ───────────────────────────────────────
+export const TRL_LABELS: Record<number, string> = {
+  1: 'Basic principles observed',
+  2: 'Technology concept formulated',
+  3: 'Experimental proof of concept',
+  4: 'Technology validated in lab',
+  5: 'Technology validated in relevant environment',
+  6: 'Technology demonstrated in relevant environment',
+  7: 'System prototype demonstrated',
+  8: 'System complete and qualified',
+  9: 'Actual system proven in operational environment',
+}
+
+// ── Sector-specific diligence templates ─────────────────────────────
+export const DILIGENCE_TEMPLATES: Record<Sector, DiligenceChecklistItem[]> = {
+  ai: [
+    { id: 'ai-1', category: 'Technology', item: 'Model architecture review', completed: false },
+    { id: 'ai-2', category: 'Technology', item: 'Training data provenance and licensing', completed: false },
+    { id: 'ai-3', category: 'Technology', item: 'Benchmark performance vs. SOTA', completed: false },
+    { id: 'ai-4', category: 'Technology', item: 'Inference cost and latency analysis', completed: false },
+    { id: 'ai-5', category: 'Market', item: 'TAM/SAM/SOM analysis', completed: false },
+    { id: 'ai-6', category: 'Market', item: 'Competitive landscape mapping', completed: false },
+    { id: 'ai-7', category: 'Team', item: 'Technical founder background', completed: false },
+    { id: 'ai-8', category: 'Team', item: 'Key hire plan and capacity', completed: false },
+    { id: 'ai-9', category: 'Legal', item: 'IP ownership and freedom to operate', completed: false },
+    { id: 'ai-10', category: 'Legal', item: 'AI regulatory compliance review', completed: false },
+  ],
+  'space-aero': [
+    { id: 'sp-1', category: 'Technology', item: 'TRL assessment (NASA framework)', completed: false },
+    { id: 'sp-2', category: 'Technology', item: 'Testing and qualification status', completed: false },
+    { id: 'sp-3', category: 'Technology', item: 'Manufacturing readiness level', completed: false },
+    { id: 'sp-4', category: 'Technology', item: 'Supply chain resilience', completed: false },
+    { id: 'sp-5', category: 'Market', item: 'Government vs commercial revenue mix', completed: false },
+    { id: 'sp-6', category: 'Market', item: 'Contract pipeline and LOIs', completed: false },
+    { id: 'sp-7', category: 'Team', item: 'Aerospace domain expertise', completed: false },
+    { id: 'sp-8', category: 'Team', item: 'Regulatory and compliance experience', completed: false },
+    { id: 'sp-9', category: 'Legal', item: 'ITAR/EAR compliance', completed: false },
+    { id: 'sp-10', category: 'Legal', item: 'Launch/spectrum licensing status', completed: false },
+  ],
+  'bio-medical': [
+    { id: 'bm-1', category: 'Technology', item: 'Scientific validation status', completed: false },
+    { id: 'bm-2', category: 'Technology', item: 'Clinical trial phase and timeline', completed: false },
+    { id: 'bm-3', category: 'Technology', item: 'Platform vs single-product assessment', completed: false },
+    { id: 'bm-4', category: 'Technology', item: 'Manufacturing scalability', completed: false },
+    { id: 'bm-5', category: 'Market', item: 'Patient population and unmet need', completed: false },
+    { id: 'bm-6', category: 'Market', item: 'Reimbursement pathway analysis', completed: false },
+    { id: 'bm-7', category: 'Team', item: 'Scientific advisory board', completed: false },
+    { id: 'bm-8', category: 'Team', item: 'Regulatory affairs experience', completed: false },
+    { id: 'bm-9', category: 'Legal', item: 'Patent portfolio review', completed: false },
+    { id: 'bm-10', category: 'Legal', item: 'FDA/EMA regulatory pathway', completed: false },
+  ],
+}
+
 // ── Investor / LP ────────────────────────────────────────────────────
 export const LP_TYPES = [
   'family-office',

@@ -1,6 +1,8 @@
 import Fastify from 'fastify'
 import cors from '@fastify/cors'
 import helmet from '@fastify/helmet'
+import { trlRoutes } from './routes/trl.js'
+import { memoRoutes } from './routes/memos.js'
 
 const app = Fastify({
   logger: {
@@ -21,11 +23,14 @@ app.get('/health', async () => ({
   version: '0.0.1',
 }))
 
-// API v1 routes will be registered here
+// API v1 routes
 app.get('/api/v1', async () => ({
   name: 'ARCA Fund Platform API',
   version: '0.0.1',
 }))
+
+await app.register(trlRoutes)
+await app.register(memoRoutes)
 
 const port = Number(process.env.PORT ?? 4000)
 const host = process.env.HOST ?? '0.0.0.0'
