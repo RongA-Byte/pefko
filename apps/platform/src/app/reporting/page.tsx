@@ -1,5 +1,4 @@
 import type { Metadata } from 'next'
-import Link from 'next/link'
 
 export const metadata: Metadata = { title: 'LP Reporting' }
 
@@ -47,12 +46,6 @@ const reportSections = [
     source: 'Internal (ARCA custom)',
   },
 ]
-
-const statusColors: Record<string, string> = {
-  draft: 'bg-gray-100 text-gray-700',
-  'in-review': 'bg-amber-100 text-amber-700',
-  published: 'bg-green-100 text-green-700',
-}
 
 export default function ReportingPage() {
   return (
