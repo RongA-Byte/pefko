@@ -49,7 +49,7 @@ export async function reportingRoutes(app: FastifyInstance) {
       portfolioUpdates?: PortfolioUpdate[]
     }
 
-    // Default empty metrics (will be populated from Carta/portfolio data when available)
+    // Default empty metrics (will be populated from fund admin/portfolio data when available)
     const defaultMetrics: PortfolioMetrics = {
       tvpiGross: 0,
       tvpiNet: 0,

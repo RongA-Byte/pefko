@@ -20,8 +20,8 @@ interface Deal {
   leadPartner: string | null
   coInvestors: CoInvestor[]
   contacts: DealContact[]
-  affinityOrgId: number | null
-  affinityListEntryId: number | null
+
+
   createdAt: string
   updatedAt: string
 }
@@ -34,7 +34,7 @@ interface CoInvestor {
   checkSize: string | null
   contactName: string | null
   contactEmail: string | null
-  affinityOrgId: number | null
+
   notes: string | null
 }
 
@@ -45,7 +45,7 @@ interface DealContact {
   role: string
   email: string | null
   phone: string | null
-  affinityPersonId: number | null
+
   isPrimary: boolean
 }
 
@@ -58,8 +58,8 @@ interface LpPipelineEntry {
   lastContactDate: string | null
   nextFollowUp: string | null
   notes: string | null
-  affinityOrgId: number | null
-  affinityListEntryId: number | null
+
+
   createdAt: string
   updatedAt: string
 }
@@ -140,8 +140,6 @@ export async function dealRoutes(app: FastifyInstance) {
       leadPartner: body.leadPartner ?? null,
       coInvestors: [],
       contacts: [],
-      affinityOrgId: null,
-      affinityListEntryId: null,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     }
@@ -245,7 +243,6 @@ export async function dealRoutes(app: FastifyInstance) {
       checkSize: body.checkSize ?? null,
       contactName: body.contactName ?? null,
       contactEmail: body.contactEmail ?? null,
-      affinityOrgId: null,
       notes: body.notes ?? null,
     }
     coInvestors.push(entry)
@@ -285,7 +282,6 @@ export async function dealRoutes(app: FastifyInstance) {
       role: body.role,
       email: body.email ?? null,
       phone: body.phone ?? null,
-      affinityPersonId: null,
       isPrimary: body.isPrimary ?? false,
     }
     dealContacts.push(contact)
@@ -371,8 +367,6 @@ export async function dealRoutes(app: FastifyInstance) {
       lastContactDate: null,
       nextFollowUp: null,
       notes: body.notes ?? null,
-      affinityOrgId: null,
-      affinityListEntryId: null,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     }
@@ -393,57 +387,4 @@ export async function dealRoutes(app: FastifyInstance) {
     return { data: lpPipeline[idx] }
   })
 
-  // ── Affinity Sync Endpoints ───────────────────────────────────────
-  // These endpoints enable sync between local data and Affinity CRM.
-  // They require AFFINITY_API_KEY to be configured.
-
-  app.post('/api/v1/deals/:dealId/sync-affinity', async (request) => {
-    const { dealId } = request.params as { dealId: string }
-    const idx = deals.findIndex((d) => d.id === dealId)
-    if (idx < 0) return { error: 'Not found', message: 'Deal not found', statusCode: 404 }
-
-    if (!process.env.AFFINITY_API_KEY) {
-      return {
-        error: 'Configuration',
-        message: 'Affinity API key not configured. Set AFFINITY_API_KEY in environment.',
-        statusCode: 503,
-      }
-    }
-
-    // Sync is a placeholder — once Affinity credentials are live, this will:
-    // 1. Create or update organization in Affinity
-    // 2. Add to deal flow list
-    // 3. Set custom field values (sector, TRL score, check size, etc.)
-    // 4. Sync contacts as Affinity persons
-
-    return {
-      data: {
-        status: 'ready',
-        message: 'Affinity sync scaffold ready. Provide credentials to activate.',
-        dealId,
-      },
-    }
-  })
-
-  app.post('/api/v1/lp-pipeline/:entryId/sync-affinity', async (request) => {
-    const { entryId } = request.params as { entryId: string }
-    const idx = lpPipeline.findIndex((e) => e.id === entryId)
-    if (idx < 0) return { error: 'Not found', message: 'LP pipeline entry not found', statusCode: 404 }
-
-    if (!process.env.AFFINITY_API_KEY) {
-      return {
-        error: 'Configuration',
-        message: 'Affinity API key not configured. Set AFFINITY_API_KEY in environment.',
-        statusCode: 503,
-      }
-    }
-
-    return {
-      data: {
-        status: 'ready',
-        message: 'Affinity LP sync scaffold ready. Provide credentials to activate.',
-        entryId,
-      },
-    }
-  })
 }

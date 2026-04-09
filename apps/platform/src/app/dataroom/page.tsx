@@ -23,7 +23,7 @@ export default function DataRoomPage() {
         <div>
           <h1 className="text-2xl font-bold">LP Data Room</h1>
           <p className="mt-1 text-sm text-[var(--color-muted)]">
-            Secure document portal for fundraising &mdash; powered by DocSend + Carta
+            Secure document portal for fundraising &mdash; built-in data room &amp; fund admin
           </p>
         </div>
         <div className="flex gap-2">
@@ -44,19 +44,19 @@ export default function DataRoomPage() {
         <StatCard label="Views (30d)" value="0" />
       </div>
 
-      {/* Integration Status */}
+      {/* Feature Status */}
       <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2">
         <IntegrationCard
-          name="DocSend Advanced"
-          description="Data room hosting, NDA gating, watermarking, engagement analytics"
-          status="pending"
-          cost="~$150/mo"
+          name="Data Room"
+          description="Document hosting, NDA gating, per-LP permissions, engagement analytics"
+          status="connected"
+          cost="Built-in"
         />
         <IntegrationCard
-          name="Carta Fund Management"
-          description="LP portal, capital call/distribution workflows, fund reporting"
-          status="pending"
-          cost="~$20-30K/yr"
+          name="Fund Administration"
+          description="LP accounts, capital call/distribution workflows, fund reporting"
+          status="connected"
+          cost="Built-in"
         />
       </div>
 
@@ -90,37 +90,32 @@ export default function DataRoomPage() {
               <FeatureRow
                 name="NDA Gating"
                 description="Require NDA signature before document access"
-                provider="DocSend"
-              />
-              <FeatureRow
-                name="Watermarking"
-                description="Dynamic watermarks with LP name/email on viewed documents"
-                provider="DocSend"
+                provider="Data Room"
               />
               <FeatureRow
                 name="Per-LP Permissions"
                 description="Granular view/download permissions per LP per document"
-                provider="DocSend"
+                provider="Data Room"
               />
               <FeatureRow
                 name="Engagement Analytics"
                 description="Track page views, time spent, completion rates per LP"
-                provider="DocSend"
+                provider="Data Room"
               />
               <FeatureRow
-                name="LP Portal"
-                description="Self-service portal for LPs to access documents and reports"
-                provider="Carta"
+                name="LP Accounts"
+                description="LP onboarding, commitment tracking, and account management"
+                provider="Fund Admin"
               />
               <FeatureRow
                 name="Capital Calls"
-                description="Automated capital call generation and LP notification"
-                provider="Carta"
+                description="Automated capital call generation with pro-rata calculations"
+                provider="Fund Admin"
               />
               <FeatureRow
                 name="Distributions"
-                description="Distribution workflow with pro-rata calculations"
-                provider="Carta"
+                description="Distribution workflow with approval and pro-rata calculations"
+                provider="Fund Admin"
               />
             </tbody>
           </table>
@@ -215,7 +210,7 @@ function FolderCard({ icon, name, count }: { icon: string; name: string; count: 
 
 function FeatureRow({ name, description, provider }: { name: string; description: string; provider: string }) {
   const providerColor =
-    provider === 'DocSend' ? 'bg-blue-100 text-blue-700' : 'bg-indigo-100 text-indigo-700'
+    provider === 'Data Room' ? 'bg-blue-100 text-blue-700' : 'bg-indigo-100 text-indigo-700'
   return (
     <tr>
       <td className="py-3 pr-4 font-medium">{name}</td>

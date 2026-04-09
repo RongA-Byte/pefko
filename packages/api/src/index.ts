@@ -7,6 +7,8 @@ import { complianceRoutes } from './routes/compliance.js'
 import { dataRoomRoutes } from './routes/dataroom.js'
 import { portfolioRoutes } from './routes/portfolio.js'
 import { reportingRoutes } from './routes/reporting.js'
+import { dealRoutes } from './routes/deals.js'
+import { fundAdminRoutes } from './routes/fundadmin.js'
 
 const app = Fastify({
   logger: {
@@ -39,6 +41,8 @@ await app.register(complianceRoutes)
 await app.register(dataRoomRoutes)
 await app.register(portfolioRoutes)
 await app.register(reportingRoutes)
+await app.register(dealRoutes)
+await app.register(fundAdminRoutes)
 
 const port = Number(process.env.PORT ?? 4000)
 const host = process.env.HOST ?? '0.0.0.0'

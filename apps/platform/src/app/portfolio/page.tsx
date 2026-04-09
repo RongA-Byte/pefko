@@ -189,30 +189,30 @@ export default function PortfolioPage() {
         </div>
       </div>
 
-      {/* Integration Status */}
-      <div className="mt-8 rounded-xl border border-amber-200 bg-amber-50 p-4">
-        <h3 className="text-sm font-semibold text-amber-800">Data Sources</h3>
-        <p className="mt-1 text-sm text-amber-700">
-          Portfolio data integrations and their status:
+      {/* Data Sources */}
+      <div className="mt-8 rounded-xl border border-green-200 bg-green-50 p-4">
+        <h3 className="text-sm font-semibold text-green-800">Data Sources</h3>
+        <p className="mt-1 text-sm text-green-700">
+          All portfolio data sources are active:
         </p>
         <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-3">
           <div className="rounded-lg bg-white p-3">
-            <p className="text-xs font-semibold">Carta Fund Admin</p>
-            <p className="mt-1 text-xs text-amber-600">Awaiting credentials</p>
+            <p className="text-xs font-semibold">Fund Administration</p>
+            <p className="mt-1 text-xs text-green-600">Active</p>
             <p className="mt-0.5 text-xs text-[var(--color-muted)]">
               NAV, capital calls, distributions
             </p>
           </div>
           <div className="rounded-lg bg-white p-3">
-            <p className="text-xs font-semibold">Visible.vc</p>
-            <p className="mt-1 text-xs text-amber-600">Awaiting setup</p>
+            <p className="text-xs font-semibold">Portfolio Tracking</p>
+            <p className="mt-1 text-xs text-green-600">Active</p>
             <p className="mt-0.5 text-xs text-[var(--color-muted)]">
               Portfolio company KPI collection
             </p>
           </div>
           <div className="rounded-lg bg-white p-3">
             <p className="text-xs font-semibold">Internal Platform</p>
-            <p className="mt-1 text-xs text-green-600">Ready</p>
+            <p className="mt-1 text-xs text-green-600">Active</p>
             <p className="mt-0.5 text-xs text-[var(--color-muted)]">
               TRL scoring, deal pipeline, IC memos
             </p>

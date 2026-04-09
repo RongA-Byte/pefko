@@ -51,13 +51,10 @@ export default function DealsPage() {
         <div>
           <h1 className="text-2xl font-bold">Deal Pipeline</h1>
           <p className="mt-1 text-sm text-[var(--color-muted)]">
-            Track deals from sourcing through close &middot; Syncs with Affinity CRM
+            Track deals from sourcing through close &middot; Built-in CRM
           </p>
         </div>
         <div className="flex gap-2">
-          <button className="rounded-lg border border-[var(--color-border)] px-4 py-2 text-sm font-medium transition-colors hover:bg-[var(--color-bg-alt)]">
-            Import from Affinity
-          </button>
           <button className="rounded-lg bg-[var(--color-accent)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--color-accent-light)]">
             + New Deal
           </button>
@@ -79,8 +76,8 @@ export default function DealsPage() {
           <p className="mt-1 text-2xl font-bold">&mdash;</p>
         </div>
         <div className="rounded-xl border border-[var(--color-border)] bg-white p-4">
-          <p className="text-xs font-medium text-[var(--color-muted)]">Affinity Sync</p>
-          <p className="mt-1 text-sm font-medium text-amber-600">Awaiting credentials</p>
+          <p className="text-xs font-medium text-[var(--color-muted)]">CRM Status</p>
+          <p className="mt-1 text-sm font-medium text-green-600">Active</p>
         </div>
       </div>
 
@@ -136,9 +133,6 @@ export default function DealsPage() {
             </p>
           </div>
           <div className="flex gap-2">
-            <button className="rounded-lg border border-[var(--color-border)] px-4 py-2 text-sm font-medium transition-colors hover:bg-[var(--color-bg-alt)]">
-              Sync from Affinity
-            </button>
             <Link
               href="/lps"
               className="rounded-lg border border-[var(--color-border)] px-4 py-2 text-sm font-medium transition-colors hover:bg-[var(--color-bg-alt)]"
@@ -167,30 +161,27 @@ export default function DealsPage() {
       <div className="mt-10">
         <h2 className="text-xl font-bold">Co-Investor Network</h2>
         <p className="mt-1 text-sm text-[var(--color-muted)]">
-          Track co-investor relationships across deals &middot; Powered by Affinity relationship intelligence
+          Track co-investor relationships across deals
         </p>
         <div className="mt-4 rounded-xl border border-[var(--color-border)] bg-white p-8 text-center">
           <p className="font-semibold text-[var(--color-muted)]">No co-investor data yet</p>
           <p className="mt-1 text-sm text-[var(--color-muted)]">
-            Add co-investors to deals or sync from Affinity to populate the network view.
+            Add co-investors to deals to populate the network view.
           </p>
         </div>
       </div>
 
-      {/* Integration Status */}
-      <div className="mt-10 rounded-xl border border-amber-200 bg-amber-50 p-4">
-        <h3 className="text-sm font-semibold text-amber-800">Affinity CRM Integration</h3>
-        <p className="mt-1 text-sm text-amber-700">
-          Integration scaffolding is ready. Awaiting Affinity account credentials to activate:
+      {/* CRM Status */}
+      <div className="mt-10 rounded-xl border border-green-200 bg-green-50 p-4">
+        <h3 className="text-sm font-semibold text-green-800">Built-in CRM Active</h3>
+        <p className="mt-1 text-sm text-green-700">
+          Deal pipeline, LP tracking, and co-investor management are fully operational.
         </p>
-        <ul className="mt-2 space-y-1 text-sm text-amber-700">
-          <li>&#x2022; Affinity API key &rarr; <code className="rounded bg-amber-100 px-1.5 py-0.5 text-xs">AFFINITY_API_KEY</code></li>
-          <li>&#x2022; Deal flow list ID &rarr; <code className="rounded bg-amber-100 px-1.5 py-0.5 text-xs">AFFINITY_DEAL_LIST_ID</code></li>
-          <li>&#x2022; LP tracking list ID &rarr; <code className="rounded bg-amber-100 px-1.5 py-0.5 text-xs">AFFINITY_LP_LIST_ID</code></li>
+        <ul className="mt-2 space-y-1 text-sm text-green-700">
+          <li>&#x2022; Deal flow pipeline with stage transitions and TRL scoring</li>
+          <li>&#x2022; LP relationship tracking from prospecting through commitment</li>
+          <li>&#x2022; Co-investor network with contact management</li>
         </ul>
-        <p className="mt-2 text-xs text-amber-600">
-          Once configured, two-way sync between ARCA platform and Affinity will be active.
-        </p>
       </div>
     </div>
   )

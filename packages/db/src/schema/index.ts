@@ -80,7 +80,6 @@ export const deals = pgTable('deals', {
   checkSize: numeric('check_size', { precision: 14, scale: 2 }),
   valuation: numeric('valuation', { precision: 14, scale: 2 }),
   leadPartner: uuid('lead_partner').references(() => users.id),
-  affinityId: varchar('affinity_id', { length: 255 }), // external CRM reference
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 })
@@ -168,7 +167,6 @@ export const lps = pgTable('lps', {
   kycExternalId: varchar('kyc_external_id', { length: 255 }),
   kycCompletedAt: timestamp('kyc_completed_at'),
   commitmentAmount: numeric('commitment_amount', { precision: 14, scale: 2 }),
-  affinityId: varchar('affinity_id', { length: 255 }),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 })
@@ -317,7 +315,8 @@ export const dataRoomDocuments = pgTable('data_room_documents', {
   fileName: varchar('file_name', { length: 500 }).notNull(),
   fileUrl: varchar('file_url', { length: 1000 }),
   version: integer('version').notNull().default(1),
-  docSendDocumentId: varchar('docsend_document_id', { length: 255 }),
+  fileSize: integer('file_size'),
+  mimeType: varchar('mime_type', { length: 255 }),
   uploadedBy: uuid('uploaded_by').references(() => users.id),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
@@ -333,7 +332,6 @@ export const dataRoomLpAccess = pgTable('data_room_lp_access', {
   accessLevel: dataRoomAccessLevelEnum('access_level').notNull().default('view'),
   ndaRequired: boolean('nda_required').notNull().default(true),
   ndaSignedAt: timestamp('nda_signed_at'),
-  docSendLinkId: varchar('docsend_link_id', { length: 255 }),
   expiresAt: timestamp('expires_at'),
   grantedBy: uuid('granted_by').references(() => users.id),
   createdAt: timestamp('created_at').defaultNow().notNull(),
@@ -374,7 +372,6 @@ export const capitalCalls = pgTable('capital_calls', {
   dueDate: timestamp('due_date').notNull(),
   purpose: text('purpose'),
   status: capitalCallStatusEnum('status').notNull().default('draft'),
-  cartaCapitalCallId: varchar('carta_capital_call_id', { length: 255 }),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 })
@@ -408,7 +405,6 @@ export const distributions = pgTable('distributions', {
   distributionDate: timestamp('distribution_date').notNull(),
   type: distributionTypeEnum('type').notNull(),
   status: varchar('status', { length: 50 }).notNull().default('draft'),
-  cartaDistributionId: varchar('carta_distribution_id', { length: 255 }),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 })
@@ -446,7 +442,6 @@ export const coInvestors = pgTable('co_investors', {
   checkSize: numeric('check_size', { precision: 14, scale: 2 }),
   contactName: varchar('contact_name', { length: 255 }),
   contactEmail: varchar('contact_email', { length: 255 }),
-  affinityOrgId: integer('affinity_org_id'),
   notes: text('notes'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
@@ -463,7 +458,6 @@ export const dealContacts = pgTable('deal_contacts', {
   role: varchar('role', { length: 255 }).notNull(),
   email: varchar('email', { length: 255 }),
   phone: varchar('phone', { length: 50 }),
-  affinityPersonId: integer('affinity_person_id'),
   isPrimary: boolean('is_primary').notNull().default(false),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
@@ -489,8 +483,6 @@ export const lpPipeline = pgTable('lp_pipeline', {
   lastContactDate: timestamp('last_contact_date'),
   nextFollowUp: timestamp('next_follow_up'),
   notes: text('notes'),
-  affinityOrgId: integer('affinity_org_id'),
-  affinityListEntryId: integer('affinity_list_entry_id'),
   createdAt: timestamp('created_at').defaultNow().notNull(),
   updatedAt: timestamp('updated_at').defaultNow().notNull(),
 })

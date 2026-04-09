@@ -8,21 +8,21 @@ const reportSections = [
     title: 'Fund Overview',
     description: 'NAV, TVPI, DPI, RVPI, IRR summary',
     required: true,
-    source: 'Carta',
+    source: 'Fund Admin',
   },
   {
     key: 'capital-activity',
     title: 'Capital Activity',
     description: 'Capital calls and distributions during the period',
     required: true,
-    source: 'Carta',
+    source: 'Fund Admin',
   },
   {
     key: 'portfolio-summary',
     title: 'Portfolio Summary',
     description: 'Overview of all portfolio companies and their status',
     required: true,
-    source: 'Internal + Carta',
+    source: 'Internal + Fund Admin',
   },
   {
     key: 'trl-progression',
@@ -168,7 +168,7 @@ export default function ReportingPage() {
             <span className="flex h-7 w-7 items-center justify-center rounded-full bg-[var(--color-bg-alt)] text-xs font-bold text-[var(--color-muted)]">
               2
             </span>
-            <span className="text-sm text-[var(--color-muted)]">Pull Carta metrics</span>
+            <span className="text-sm text-[var(--color-muted)]">Pull fund metrics</span>
           </div>
           <div className="h-px w-8 bg-[var(--color-border)]" />
           <div className="flex flex-1 items-center gap-2">
@@ -195,15 +195,15 @@ export default function ReportingPage() {
       </div>
 
       {/* Data Source Integration */}
-      <div className="mt-8 rounded-xl border border-amber-200 bg-amber-50 p-4">
-        <h3 className="text-sm font-semibold text-amber-800">Report Data Sources</h3>
-        <p className="mt-1 text-sm text-amber-700">
-          Quarterly reports combine standard Carta output with ARCA custom supplements:
+      <div className="mt-8 rounded-xl border border-green-200 bg-green-50 p-4">
+        <h3 className="text-sm font-semibold text-green-800">Report Data Sources</h3>
+        <p className="mt-1 text-sm text-green-700">
+          Quarterly reports combine built-in fund admin output with ARCA custom supplements:
         </p>
         <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
           <div className="rounded-lg bg-white p-3">
-            <p className="text-xs font-semibold">Standard (Carta)</p>
-            <p className="mt-1 text-xs text-amber-600">Awaiting fund admin setup</p>
+            <p className="text-xs font-semibold">Standard (Fund Admin)</p>
+            <p className="mt-1 text-xs text-green-600">Active</p>
             <ul className="mt-2 space-y-1 text-xs text-[var(--color-muted)]">
               <li>&bull; Fund financial statements</li>
               <li>&bull; Capital account statements</li>

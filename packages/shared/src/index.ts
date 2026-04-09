@@ -147,7 +147,7 @@ export const DILIGENCE_TEMPLATES: Record<Sector, DiligenceChecklistItem[]> = {
   ],
 }
 
-// ── LP Pipeline (Affinity CRM) ──────────────────────────────────────
+// ── LP Pipeline ─────────────────────────────────────────────────────
 export const LP_PIPELINE_STAGES = [
   'prospecting',
   'intro-call',
@@ -169,7 +169,6 @@ export interface CoInvestor {
   checkSize: string | null
   contactName: string | null
   contactEmail: string | null
-  affinityOrgId: number | null
   notes: string | null
 }
 
@@ -180,7 +179,6 @@ export interface DealContact {
   role: string
   email: string | null
   phone: string | null
-  affinityPersonId: number | null
   isPrimary: boolean
 }
 
@@ -194,7 +192,6 @@ export interface DealSummary {
   valuation: string | null
   leadPartner: string | null
   coInvestorCount: number
-  affinityOrgId: number | null
   createdAt: string
   updatedAt: string
 }
@@ -217,7 +214,6 @@ export interface LpPipelineEntry {
   lastContactDate: string | null
   nextFollowUp: string | null
   notes: string | null
-  affinityOrgId: number | null
   createdAt: string
   updatedAt: string
 }
@@ -356,8 +352,9 @@ export interface DataRoomDocument {
   folderType: DataRoomFolderType
   name: string
   fileName: string
+  fileSize: number | null
+  mimeType: string | null
   version: number
-  docSendDocumentId: string | null
   uploadedBy: string
   createdAt: string
   updatedAt: string
@@ -371,7 +368,6 @@ export interface DataRoomLpAccess {
   accessLevel: DataRoomAccessLevel
   ndaRequired: boolean
   ndaSignedAt: string | null
-  docSendLinkId: string | null
   expiresAt: string | null
   grantedBy: string
   createdAt: string
@@ -388,13 +384,72 @@ export interface DataRoomEngagement {
   downloadedAt: string | null
 }
 
-// ── Fund Administration (Carta) ─────────────────────────────────────
+// ── Fund Administration ─────────────────────────────────────────────
+
+export const LP_ACCOUNT_STATUSES = ['invited', 'onboarding', 'active', 'inactive'] as const
+export type LpAccountStatus = (typeof LP_ACCOUNT_STATUSES)[number]
+
+export const LP_ACCOUNT_TYPES = ['individual', 'entity', 'trust'] as const
+export type LpAccountType = (typeof LP_ACCOUNT_TYPES)[number]
+
+export interface LpAccount {
+  id: string
+  name: string
+  type: LpAccountType
+  email: string
+  commitmentAmount: number
+  calledAmount: number
+  distributedAmount: number
+  nav: number
+  status: LpAccountStatus
+  createdAt: string
+  updatedAt: string
+}
 
 export const CAPITAL_CALL_STATUSES = ['draft', 'sent', 'partially-paid', 'completed', 'overdue'] as const
 export type CapitalCallStatus = (typeof CAPITAL_CALL_STATUSES)[number]
 
+export interface CapitalCall {
+  id: string
+  callNumber: number
+  totalAmount: number
+  dueDate: string
+  purpose: string
+  status: CapitalCallStatus
+  lineItems: CapitalCallLineItem[]
+  createdAt: string
+}
+
+export interface CapitalCallLineItem {
+  lpAccountId: string
+  amount: number
+  proRataPercentage: number
+  status: 'pending' | 'paid' | 'overdue'
+  paidAt: string | null
+}
+
 export const DISTRIBUTION_TYPES = ['return-of-capital', 'profit', 'recallable'] as const
 export type DistributionType = (typeof DISTRIBUTION_TYPES)[number]
+
+export const DISTRIBUTION_STATUSES = ['draft', 'approved', 'distributed'] as const
+export type DistributionStatus = (typeof DISTRIBUTION_STATUSES)[number]
+
+export interface Distribution {
+  id: string
+  distributionNumber: number
+  totalAmount: number
+  distributionDate: string
+  type: DistributionType
+  status: DistributionStatus
+  lineItems: DistributionLineItem[]
+  createdAt: string
+}
+
+export interface DistributionLineItem {
+  lpAccountId: string
+  amount: number
+  proRataPercentage: number
+}
 
 export interface FundSummary {
   fundName: string
