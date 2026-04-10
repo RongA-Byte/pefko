@@ -7,6 +7,7 @@ const sectorLabels: Record<string, string> = {
   ai: 'AI & Machine Learning',
   'space-aero': 'Space & Aerospace',
   'bio-medical': 'Bio & Medical',
+  opportunistic: 'Opportunistic',
 }
 
 export default function TrlScoringPage() {

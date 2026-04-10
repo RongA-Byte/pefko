@@ -12,6 +12,7 @@ import type {
   DistributionLineItem,
   FundSummary,
 } from '@arca/shared'
+import { FUND_CONFIG } from '@arca/shared'
 
 // ── In-memory stores (until DB is connected) ────────────────────────
 
@@ -22,11 +23,18 @@ const distributions: Distribution[] = []
 let callCounter = 0
 let distCounter = 0
 
-// Fund config (set via API or env)
+// Fund config from shared constants (overridable via env)
 const fundConfig = {
-  fundName: process.env.FUND_NAME ?? 'ARCA Fund I',
+  fundName: process.env.FUND_NAME ?? FUND_CONFIG.name,
   vintage: Number(process.env.FUND_VINTAGE ?? new Date().getFullYear()),
-  targetSize: Number(process.env.FUND_TARGET_SIZE ?? 50_000_000),
+  targetSize: Number(process.env.FUND_TARGET_SIZE ?? FUND_CONFIG.targetSize),
+  currency: FUND_CONFIG.currency,
+  managementFee: FUND_CONFIG.managementFee,
+  carry: FUND_CONFIG.carry,
+  hurdleRate: FUND_CONFIG.hurdleRate,
+  fundLifeYears: FUND_CONFIG.fundLifeYears,
+  extensionYears: FUND_CONFIG.extensionYears,
+  investmentPeriodYears: FUND_CONFIG.investmentPeriodYears,
 }
 
 // ── Routes ──────────────────────────────────────────────────────────
@@ -44,7 +52,16 @@ export async function fundAdminRoutes(app: FastifyInstance) {
     ).length
 
     const summary: FundSummary = {
-      ...fundConfig,
+      fundName: fundConfig.fundName,
+      vintage: fundConfig.vintage,
+      targetSize: fundConfig.targetSize,
+      currency: fundConfig.currency,
+      managementFee: fundConfig.managementFee,
+      carry: fundConfig.carry,
+      hurdleRate: fundConfig.hurdleRate,
+      fundLifeYears: fundConfig.fundLifeYears,
+      extensionYears: fundConfig.extensionYears,
+      investmentPeriodYears: fundConfig.investmentPeriodYears,
       totalCommitments,
       totalCalled,
       totalDistributed,

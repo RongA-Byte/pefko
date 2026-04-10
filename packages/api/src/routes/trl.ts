@@ -1,6 +1,6 @@
 import type { FastifyInstance } from 'fastify'
 import type { TrlRubric, TrlAssessment, Sector } from '@arca/shared'
-import { TRL_LABELS } from '@arca/shared'
+import { TRL_LABELS, SECTOR_TRL_ENTRY } from '@arca/shared'
 
 // In-memory store until DB is connected
 const rubrics: TrlRubric[] = []
@@ -49,6 +49,38 @@ export async function trlRoutes(app: FastifyInstance) {
 
   app.get('/api/v1/trl/labels', async () => {
     return { data: TRL_LABELS }
+  })
+
+  // ── Sector-specific TRL entry criteria ────────────────────────────
+
+  app.get('/api/v1/trl/entry-criteria', async () => {
+    return { data: SECTOR_TRL_ENTRY }
+  })
+
+  app.get('/api/v1/trl/entry-criteria/:sector', async (request) => {
+    const { sector } = request.params as { sector: Sector }
+    const criteria = SECTOR_TRL_ENTRY[sector]
+    if (!criteria) return { error: 'Not found', message: 'Unknown sector', statusCode: 404 }
+    return { data: { sector, ...criteria, description: `Entry TRL range for ${sector}: TRL ${criteria.min}-${criteria.max}` } }
+  })
+
+  app.post('/api/v1/trl/validate-entry', async (request) => {
+    const body = request.body as { sector: Sector; trlLevel: number }
+    const criteria = SECTOR_TRL_ENTRY[body.sector]
+    if (!criteria) return { error: 'Not found', message: 'Unknown sector', statusCode: 404 }
+
+    const meetsEntry = body.trlLevel >= criteria.min && body.trlLevel <= criteria.max
+    return {
+      data: {
+        sector: body.sector,
+        trlLevel: body.trlLevel,
+        requiredRange: criteria,
+        meetsEntryCriteria: meetsEntry,
+        message: meetsEntry
+          ? `TRL ${body.trlLevel} meets ${body.sector} entry criteria (TRL ${criteria.min}-${criteria.max})`
+          : `TRL ${body.trlLevel} does not meet ${body.sector} entry criteria (requires TRL ${criteria.min}-${criteria.max})`,
+      },
+    }
   })
 
   // ── Assessments ────────────────────────────────────────────────────

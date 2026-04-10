@@ -1,6 +1,6 @@
 import type { FastifyInstance } from 'fastify'
 import type { DealStage, Sector } from '@arca/shared'
-import { DEAL_STAGES, LP_PIPELINE_STAGES } from '@arca/shared'
+import { DEAL_STAGES, LP_PIPELINE_STAGES, INVESTMENT_PARAMS, SECTOR_ALLOCATION_TARGETS, SECTOR_TRL_ENTRY } from '@arca/shared'
 
 // ── In-memory stores (until DB is connected) ────────────────────────
 
@@ -110,6 +110,42 @@ export async function dealRoutes(app: FastifyInstance) {
     }
   })
 
+  // ── Investment Parameter Validation ──────────────────────────────────
+
+  app.get('/api/v1/deals/config/investment-params', async () => {
+    return {
+      data: {
+        firstCheckRange: INVESTMENT_PARAMS.firstCheckRange,
+        maxFollowOnPerCompany: INVESTMENT_PARAMS.maxFollowOnPerCompany,
+        targetOwnership: INVESTMENT_PARAMS.targetOwnership,
+        portfolioSize: INVESTMENT_PARAMS.portfolioSize,
+        reserveRatio: INVESTMENT_PARAMS.reserveRatio,
+        sectorAllocations: SECTOR_ALLOCATION_TARGETS,
+        sectorTrlEntry: SECTOR_TRL_ENTRY,
+      },
+    }
+  })
+
+  app.get('/api/v1/deals/config/sector-allocation-status', async () => {
+    const totalInvested = deals.reduce((s, d) => s + Number(d.checkSize ?? 0), 0)
+    const bySector: Record<string, { invested: number; pct: number; target: { min: number; max: number }; withinTarget: boolean }> = {}
+
+    for (const [sector, target] of Object.entries(SECTOR_ALLOCATION_TARGETS)) {
+      const sectorInvested = deals
+        .filter((d) => d.sector === sector && d.stage !== 'passed')
+        .reduce((s, d) => s + Number(d.checkSize ?? 0), 0)
+      const pct = totalInvested > 0 ? sectorInvested / totalInvested : 0
+      bySector[sector] = {
+        invested: sectorInvested,
+        pct: Math.round(pct * 10000) / 100,
+        target,
+        withinTarget: pct >= target.min && pct <= target.max,
+      }
+    }
+
+    return { data: { totalInvested, bySector } }
+  })
+
   app.post('/api/v1/deals', async (request) => {
     const body = request.body as {
       companyName: string
@@ -122,6 +158,18 @@ export async function dealRoutes(app: FastifyInstance) {
       checkSize?: string
       valuation?: string
       leadPartner?: string
+    }
+
+    // Validate first-check size if provided
+    if (body.checkSize) {
+      const amount = Number(body.checkSize)
+      if (amount < INVESTMENT_PARAMS.firstCheckRange.min || amount > INVESTMENT_PARAMS.firstCheckRange.max) {
+        return {
+          error: 'Validation',
+          message: `First check must be between $${(INVESTMENT_PARAMS.firstCheckRange.min / 1e6).toFixed(1)}M and $${(INVESTMENT_PARAMS.firstCheckRange.max / 1e6).toFixed(1)}M. Got $${(amount / 1e6).toFixed(2)}M.`,
+          statusCode: 400,
+        }
+      }
     }
 
     const deal: Deal = {

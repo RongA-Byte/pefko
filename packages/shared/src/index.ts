@@ -1,8 +1,66 @@
 // Shared types for the ARCA fund platform
 
 // ── Sectors ──────────────────────────────────────────────────────────
-export const SECTORS = ['ai', 'space-aero', 'bio-medical'] as const
+export const SECTORS = ['ai', 'space-aero', 'bio-medical', 'opportunistic'] as const
 export type Sector = (typeof SECTORS)[number]
+
+// ── Fund Configuration ──────────────────────────────────────────────
+export const FUND_CONFIG = {
+  name: 'ARCA Fund I',
+  targetSize: 75_000_000,
+  currency: 'USD',
+  managementFee: { investmentPeriod: 0.02, harvest: 0.0175 },
+  carry: 0.20,
+  hurdleRate: 0.08,
+  fundLifeYears: 10,
+  extensionYears: 2,
+  investmentPeriodYears: 4,
+} as const
+
+// ── Investment Parameters ───────────────────────────────────────────
+export const INVESTMENT_PARAMS = {
+  firstCheckRange: { min: 500_000, max: 3_000_000 },
+  reserveRatio: 1,
+  maxFollowOnPerCompany: 5_000_000,
+  targetOwnership: { min: 0.08, max: 0.15 },
+  portfolioSize: { min: 15, max: 20 },
+  followOnRounds: { min: 2, max: 3 },
+  unanimousVoteThreshold: 2_000_000,
+} as const
+
+// ── Sector Allocation Targets ───────────────────────────────────────
+export const SECTOR_ALLOCATION_TARGETS: Record<Sector, { min: number; max: number }> = {
+  ai: { min: 0.35, max: 0.40 },
+  'space-aero': { min: 0.30, max: 0.35 },
+  'bio-medical': { min: 0.25, max: 0.30 },
+  opportunistic: { min: 0, max: 0.10 },
+}
+
+// ── Sector TRL Entry Criteria ───────────────────────────────────────
+export const SECTOR_TRL_ENTRY: Record<Sector, { min: number; max: number }> = {
+  ai: { min: 4, max: 7 },
+  'space-aero': { min: 5, max: 7 },
+  'bio-medical': { min: 4, max: 7 },
+  opportunistic: { min: 4, max: 7 },
+}
+
+// ── Geographic Concentration ────────────────────────────────────────
+export const GEO_CONCENTRATION_ALERT_THRESHOLD = 0.40
+
+// ── IC Rules ────────────────────────────────────────────────────────
+export const IC_RULES = {
+  totalMembers: 4,
+  quorum: 3,
+  foundingPrincipalVoteRequired: true,
+  unanimousThreshold: 2_000_000,
+  meetingCadence: { dealReview: 'weekly', formalIC: 'monthly' },
+} as const
+
+// ── Reporting Deadlines ─────────────────────────────────────────────
+export const REPORTING_DEADLINES = {
+  quarterlyReportDaysAfterPeriodEnd: 45,
+  firstReportDaysAfterCapitalCall: 45,
+} as const
 
 // ── Deal Pipeline ────────────────────────────────────────────────────
 export const DEAL_STAGES = [
@@ -145,6 +203,16 @@ export const DILIGENCE_TEMPLATES: Record<Sector, DiligenceChecklistItem[]> = {
     { id: 'bm-9', category: 'Legal', item: 'Patent portfolio review', completed: false },
     { id: 'bm-10', category: 'Legal', item: 'FDA/EMA regulatory pathway', completed: false },
   ],
+  opportunistic: [
+    { id: 'op-1', category: 'Technology', item: 'Core technology differentiation assessment', completed: false },
+    { id: 'op-2', category: 'Technology', item: 'Scalability and defensibility review', completed: false },
+    { id: 'op-3', category: 'Market', item: 'TAM/SAM/SOM analysis', completed: false },
+    { id: 'op-4', category: 'Market', item: 'Competitive landscape mapping', completed: false },
+    { id: 'op-5', category: 'Team', item: 'Founder background and domain expertise', completed: false },
+    { id: 'op-6', category: 'Team', item: 'Key hire plan and capacity', completed: false },
+    { id: 'op-7', category: 'Legal', item: 'IP ownership and freedom to operate', completed: false },
+    { id: 'op-8', category: 'Legal', item: 'Regulatory compliance review', completed: false },
+  ],
 }
 
 // ── LP Pipeline ─────────────────────────────────────────────────────
@@ -239,6 +307,23 @@ export const KYC_STATUSES = [
 export type KycStatus = (typeof KYC_STATUSES)[number]
 
 // ── AML/KYC Compliance (Steward Integration) ────────────────────────
+
+// ── Compliance Jurisdictions ─────────────────────────────────────────
+export const COMPLIANCE_JURISDICTIONS = ['us-fincen', 'sg-mas'] as const
+export type ComplianceJurisdiction = (typeof COMPLIANCE_JURISDICTIONS)[number]
+
+export const JURISDICTION_REQUIREMENTS: Record<ComplianceJurisdiction, { label: string; requiredScreenings: string[]; notes: string }> = {
+  'us-fincen': {
+    label: 'FinCEN (USA) — ERA AML Program (eff. Jan 1 2026)',
+    requiredScreenings: ['identity', 'ofac', 'pep', 'adverse-media', 'source-of-funds'],
+    notes: 'Investment advisers must maintain AML programs, file SARs, and comply with CDD/beneficial ownership rules per FinCEN final rule for ERAs.',
+  },
+  'sg-mas': {
+    label: 'MAS (Singapore) — VCFM License',
+    requiredScreenings: ['identity', 'ofac', 'pep', 'adverse-media', 'source-of-funds'],
+    notes: 'MAS-regulated VCFM must conduct CDD, ongoing monitoring, and STR filing under MAS Notice VCC-N01 and relevant AML/CFT notices.',
+  },
+}
 
 export const SCREENING_TYPES = ['identity', 'ofac', 'pep', 'adverse-media', 'source-of-funds'] as const
 export type ScreeningType = (typeof SCREENING_TYPES)[number]
@@ -455,6 +540,13 @@ export interface FundSummary {
   fundName: string
   vintage: number
   targetSize: number
+  currency: string
+  managementFee: { investmentPeriod: number; harvest: number }
+  carry: number
+  hurdleRate: number
+  fundLifeYears: number
+  extensionYears: number
+  investmentPeriodYears: number
   totalCommitments: number
   totalCalled: number
   totalDistributed: number
@@ -473,8 +565,10 @@ export interface PortfolioCompany {
   dealId: string | null
   name: string
   sector: Sector
+  location: string | null
   investmentDate: string
   investmentAmount: string
+  followOnAmount: number
   ownershipPct: number | null
   currentValuation: string | null
   trlScore: number | null
@@ -530,9 +624,14 @@ export interface QuarterlyReport {
   period: string // e.g. "2026-Q1"
   type: ReportType
   status: ReportStatus
+  dueDate: string | null
   fundMetrics: PortfolioMetrics
   sectorBreakdown: PortfolioSectorBreakdown[]
   portfolioUpdates: PortfolioUpdate[]
+  capitalActivity: { callsMade: number; totalCalled: number; distributionsMade: number; totalDistributed: number } | null
+  cashFlowSummary: { openingBalance: number; contributions: number; distributions: number; fees: number; closingBalance: number } | null
+  upcomingFinancings: string[]
+  adverseDevelopments: string[]
   marketCommentary: string | null
   createdAt: string
   updatedAt: string

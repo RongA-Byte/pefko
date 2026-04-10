@@ -7,6 +7,7 @@ import type {
   PortfolioSectorBreakdown,
   PortfolioUpdate,
 } from '@arca/shared'
+import { REPORTING_DEADLINES } from '@arca/shared'
 
 // ── In-memory store (until DB is connected) ─────────────────────────
 
@@ -47,6 +48,20 @@ export async function reportingRoutes(app: FastifyInstance) {
       type: ReportType
       marketCommentary?: string
       portfolioUpdates?: PortfolioUpdate[]
+      upcomingFinancings?: string[]
+      adverseDevelopments?: string[]
+    }
+
+    // Calculate due date (45 days after period end)
+    let dueDate: string | null = null
+    const periodMatch = body.period.match(/^(\d{4})-Q(\d)$/)
+    if (periodMatch) {
+      const year = Number(periodMatch[1])
+      const quarter = Number(periodMatch[2])
+      const quarterEndMonth = quarter * 3
+      const periodEnd = new Date(year, quarterEndMonth, 0) // last day of quarter
+      periodEnd.setDate(periodEnd.getDate() + REPORTING_DEADLINES.quarterlyReportDaysAfterPeriodEnd)
+      dueDate = periodEnd.toISOString().split('T')[0]
     }
 
     // Default empty metrics (will be populated from fund admin/portfolio data when available)
@@ -67,9 +82,14 @@ export async function reportingRoutes(app: FastifyInstance) {
       period: body.period,
       type: body.type,
       status: 'draft',
+      dueDate,
       fundMetrics: defaultMetrics,
       sectorBreakdown: [],
       portfolioUpdates: body.portfolioUpdates ?? [],
+      capitalActivity: null,
+      cashFlowSummary: null,
+      upcomingFinancings: body.upcomingFinancings ?? [],
+      adverseDevelopments: body.adverseDevelopments ?? [],
       marketCommentary: body.marketCommentary ?? null,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -91,6 +111,10 @@ export async function reportingRoutes(app: FastifyInstance) {
         | 'portfolioUpdates'
         | 'marketCommentary'
         | 'status'
+        | 'capitalActivity'
+        | 'cashFlowSummary'
+        | 'upcomingFinancings'
+        | 'adverseDevelopments'
       >
     >
 
@@ -142,26 +166,70 @@ export async function reportingRoutes(app: FastifyInstance) {
 
   // ── Report templates ─────────────────────────────────────────────
 
+  // ── Reporting Deadlines Config ───────────────────────────────────
+
+  app.get('/api/v1/reports/config/deadlines', async () => {
+    return { data: REPORTING_DEADLINES }
+  })
+
   app.get('/api/v1/reports/templates/quarterly', async () => {
     return {
       data: {
+        deadline: `${REPORTING_DEADLINES.quarterlyReportDaysAfterPeriodEnd} days after period end`,
+        firstReportDeadline: `${REPORTING_DEADLINES.firstReportDaysAfterCapitalCall} days after first capital call`,
         sections: [
           {
             key: 'fund-overview',
             title: 'Fund Overview',
-            description: 'NAV, TVPI, DPI, RVPI, IRR summary',
+            description: 'NAV, TVPI, DPI, RVPI, IRR summary, fund parameters',
+            required: true,
+          },
+          {
+            key: 'portfolio-status',
+            title: 'Portfolio Status',
+            description: 'Status of each portfolio company, TRL progression, key developments',
+            required: true,
+          },
+          {
+            key: 'valuations',
+            title: 'Valuations',
+            description: 'Current valuations for all portfolio companies with methodology notes',
+            required: true,
+          },
+          {
+            key: 'capital-deployed',
+            title: 'Capital Deployed',
+            description: 'Capital deployed during the period, cumulative deployment, remaining dry powder',
+            required: true,
+          },
+          {
+            key: 'returns',
+            title: 'Returns',
+            description: 'Gross and net returns, TVPI, DPI, RVPI, IRR by vintage and sector',
+            required: true,
+          },
+          {
+            key: 'cash-flow',
+            title: 'Cash Flow',
+            description: 'Capital calls, distributions, management fees, and net cash flow for the period',
+            required: true,
+          },
+          {
+            key: 'upcoming-financings',
+            title: 'Upcoming Financings',
+            description: 'Portfolio companies expected to raise follow-on rounds, co-investment opportunities',
+            required: true,
+          },
+          {
+            key: 'adverse-developments',
+            title: 'Adverse Developments',
+            description: 'Material adverse events, write-downs, or risk factors to disclose',
             required: true,
           },
           {
             key: 'capital-activity',
             title: 'Capital Activity',
             description: 'Capital calls and distributions during the period',
-            required: true,
-          },
-          {
-            key: 'portfolio-summary',
-            title: 'Portfolio Summary',
-            description: 'Overview of all portfolio companies and their status',
             required: true,
           },
           {
@@ -173,7 +241,7 @@ export async function reportingRoutes(app: FastifyInstance) {
           {
             key: 'sector-intelligence',
             title: 'Sector Market Intelligence',
-            description: 'Market analysis for AI, Space/Aero, and Bio/Medical sectors (ARCA custom supplement)',
+            description: 'Market analysis for AI, Space/Aero, Bio/Medical, and Opportunistic sectors',
             required: false,
           },
           {

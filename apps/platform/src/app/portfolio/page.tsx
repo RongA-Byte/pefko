@@ -7,12 +7,14 @@ const sectorLabels: Record<string, string> = {
   ai: 'AI & ML',
   'space-aero': 'Space & Aero',
   'bio-medical': 'Bio & Medical',
+  opportunistic: 'Opportunistic',
 }
 
 const sectorBadgeColors: Record<string, string> = {
   ai: 'bg-violet-100 text-violet-700',
   'space-aero': 'bg-sky-100 text-sky-700',
   'bio-medical': 'bg-emerald-100 text-emerald-700',
+  opportunistic: 'bg-amber-100 text-amber-700',
 }
 
 function MetricCard({ label, value, sub }: { label: string; value: string; sub?: string }) {

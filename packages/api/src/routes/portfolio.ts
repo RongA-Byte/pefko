@@ -7,7 +7,7 @@ import type {
   PortfolioSectorBreakdown,
   PortfolioStatus,
 } from '@arca/shared'
-import { SECTORS } from '@arca/shared'
+import { SECTORS, SECTOR_ALLOCATION_TARGETS, GEO_CONCENTRATION_ALERT_THRESHOLD, INVESTMENT_PARAMS } from '@arca/shared'
 
 // ── In-memory stores (until DB is connected) ────────────────────────
 
@@ -107,6 +107,7 @@ export async function portfolioRoutes(app: FastifyInstance) {
     const body = request.body as {
       name: string
       sector: Sector
+      location?: string
       investmentDate: string
       investmentAmount: string
       ownershipPct?: number
@@ -117,13 +118,36 @@ export async function portfolioRoutes(app: FastifyInstance) {
       dealId?: string
     }
 
+    // Validate check-size limits
+    const amount = Number(body.investmentAmount)
+    if (amount < INVESTMENT_PARAMS.firstCheckRange.min || amount > INVESTMENT_PARAMS.firstCheckRange.max) {
+      return {
+        error: 'Validation',
+        message: `Investment amount must be between $${(INVESTMENT_PARAMS.firstCheckRange.min / 1e6).toFixed(1)}M and $${(INVESTMENT_PARAMS.firstCheckRange.max / 1e6).toFixed(1)}M.`,
+        statusCode: 400,
+      }
+    }
+
+    // Validate target ownership range
+    if (body.ownershipPct != null) {
+      if (body.ownershipPct < INVESTMENT_PARAMS.targetOwnership.min || body.ownershipPct > INVESTMENT_PARAMS.targetOwnership.max) {
+        return {
+          error: 'Validation',
+          message: `Target ownership must be between ${INVESTMENT_PARAMS.targetOwnership.min * 100}% and ${INVESTMENT_PARAMS.targetOwnership.max * 100}%.`,
+          statusCode: 400,
+        }
+      }
+    }
+
     const company: PortfolioCompany = {
       id: crypto.randomUUID(),
       dealId: body.dealId ?? null,
       name: body.name,
       sector: body.sector,
+      location: body.location ?? null,
       investmentDate: body.investmentDate,
       investmentAmount: body.investmentAmount,
+      followOnAmount: 0,
       ownershipPct: body.ownershipPct ?? null,
       currentValuation: body.currentValuation ?? null,
       trlScore: body.trlScore ?? null,
@@ -208,6 +232,77 @@ export async function portfolioRoutes(app: FastifyInstance) {
     return { data: kpi }
   })
 
+  // ── Sector Allocation vs Targets ────────────────────────────────
+
+  app.get('/api/v1/portfolio/allocation-status', async () => {
+    const totalInvested = companies.reduce((s, c) => s + Number(c.investmentAmount) + c.followOnAmount, 0)
+    const allocations: Record<string, { invested: number; pct: number; target: { min: number; max: number }; withinTarget: boolean; alert: string | null }> = {}
+
+    for (const [sector, target] of Object.entries(SECTOR_ALLOCATION_TARGETS)) {
+      const sectorInvested = companies
+        .filter((c) => c.sector === sector)
+        .reduce((s, c) => s + Number(c.investmentAmount) + c.followOnAmount, 0)
+      const pct = totalInvested > 0 ? sectorInvested / totalInvested : 0
+      const withinTarget = totalInvested === 0 || (pct >= target.min && pct <= target.max)
+      let alert: string | null = null
+      if (totalInvested > 0 && pct > target.max) alert = `Over-allocated: ${(pct * 100).toFixed(1)}% vs ${(target.max * 100).toFixed(0)}% max`
+      if (totalInvested > 0 && pct < target.min && companies.some((c) => c.sector === sector)) alert = `Under-allocated: ${(pct * 100).toFixed(1)}% vs ${(target.min * 100).toFixed(0)}% min`
+
+      allocations[sector] = { invested: sectorInvested, pct: Math.round(pct * 10000) / 100, target, withinTarget, alert }
+    }
+
+    return { data: { totalInvested, allocations } }
+  })
+
+  // ── Geographic Concentration ───────────────────────────────────
+
+  app.get('/api/v1/portfolio/geographic-concentration', async () => {
+    const byLocation: Record<string, { count: number; invested: number }> = {}
+    const totalInvested = companies.reduce((s, c) => s + Number(c.investmentAmount) + c.followOnAmount, 0)
+
+    for (const c of companies) {
+      const loc = c.location ?? 'Unknown'
+      if (!byLocation[loc]) byLocation[loc] = { count: 0, invested: 0 }
+      byLocation[loc].count++
+      byLocation[loc].invested += Number(c.investmentAmount) + c.followOnAmount
+    }
+
+    const alerts: string[] = []
+    const concentrations: Record<string, { count: number; invested: number; pct: number }> = {}
+    for (const [loc, data] of Object.entries(byLocation)) {
+      const pct = totalInvested > 0 ? data.invested / totalInvested : 0
+      concentrations[loc] = { ...data, pct: Math.round(pct * 10000) / 100 }
+      if (pct > GEO_CONCENTRATION_ALERT_THRESHOLD) {
+        alerts.push(`${loc}: ${(pct * 100).toFixed(1)}% exceeds ${(GEO_CONCENTRATION_ALERT_THRESHOLD * 100).toFixed(0)}% threshold`)
+      }
+    }
+
+    return { data: { concentrations, alerts, threshold: GEO_CONCENTRATION_ALERT_THRESHOLD } }
+  })
+
+  // ── Follow-on Investment ───────────────────────────────────────
+
+  app.post('/api/v1/portfolio/companies/:companyId/follow-on', async (request) => {
+    const { companyId } = request.params as { companyId: string }
+    const body = request.body as { amount: number }
+
+    const idx = companies.findIndex((c) => c.id === companyId)
+    if (idx < 0) return { error: 'Not found', message: 'Portfolio company not found', statusCode: 404 }
+
+    const company = companies[idx]
+    const newTotal = company.followOnAmount + body.amount
+    if (newTotal > INVESTMENT_PARAMS.maxFollowOnPerCompany) {
+      return {
+        error: 'Validation',
+        message: `Follow-on would exceed $${(INVESTMENT_PARAMS.maxFollowOnPerCompany / 1e6).toFixed(0)}M cumulative limit. Current: $${(company.followOnAmount / 1e6).toFixed(2)}M, requested: $${(body.amount / 1e6).toFixed(2)}M.`,
+        statusCode: 400,
+      }
+    }
+
+    companies[idx] = { ...company, followOnAmount: newTotal, updatedAt: new Date().toISOString() }
+    return { data: companies[idx] }
+  })
+
   // ── Dashboard Stats ──────────────────────────────────────────────
 
   app.get('/api/v1/portfolio/dashboard', async () => {
@@ -216,6 +311,27 @@ export async function portfolioRoutes(app: FastifyInstance) {
     const activeCount = companies.filter((c) => c.status === 'active').length
     const exitedCount = companies.filter((c) => c.status === 'exited').length
 
+    // Sector allocation alerts
+    const totalInvested = companies.reduce((s, c) => s + Number(c.investmentAmount) + c.followOnAmount, 0)
+    const sectorAlerts: string[] = []
+    for (const [sector, target] of Object.entries(SECTOR_ALLOCATION_TARGETS)) {
+      const sectorInvested = companies.filter((c) => c.sector === sector).reduce((s, c) => s + Number(c.investmentAmount) + c.followOnAmount, 0)
+      const pct = totalInvested > 0 ? sectorInvested / totalInvested : 0
+      if (totalInvested > 0 && pct > target.max) sectorAlerts.push(`${sector}: ${(pct * 100).toFixed(1)}% > ${(target.max * 100).toFixed(0)}% target max`)
+    }
+
+    // Geographic alerts
+    const geoAlerts: string[] = []
+    const byLocation: Record<string, number> = {}
+    for (const c of companies) {
+      const loc = c.location ?? 'Unknown'
+      byLocation[loc] = (byLocation[loc] ?? 0) + Number(c.investmentAmount) + c.followOnAmount
+    }
+    for (const [loc, invested] of Object.entries(byLocation)) {
+      const pct = totalInvested > 0 ? invested / totalInvested : 0
+      if (pct > GEO_CONCENTRATION_ALERT_THRESHOLD) geoAlerts.push(`${loc}: ${(pct * 100).toFixed(1)}% > ${(GEO_CONCENTRATION_ALERT_THRESHOLD * 100).toFixed(0)}% threshold`)
+    }
+
     return {
       data: {
         metrics,
@@ -223,6 +339,7 @@ export async function portfolioRoutes(app: FastifyInstance) {
         activeCompanies: activeCount,
         exitedCompanies: exitedCount,
         totalCompanies: companies.length,
+        alerts: { sector: sectorAlerts, geographic: geoAlerts },
         recentActivity: companies
           .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt))
           .slice(0, 5)

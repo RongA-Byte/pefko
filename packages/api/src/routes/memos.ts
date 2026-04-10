@@ -1,5 +1,6 @@
 import type { FastifyInstance } from 'fastify'
 import type { IcMemo, IcVoteRecord, MemoType, IcVote } from '@arca/shared'
+import { IC_RULES } from '@arca/shared'
 
 // In-memory store until DB is connected
 const memos: IcMemo[] = []
@@ -94,5 +95,71 @@ export async function memoRoutes(app: FastifyInstance) {
       abstain: memoVotes.filter((v) => v.vote === 'abstain').length,
     }
     return { data: summary }
+  })
+
+  // ── IC Rules Configuration ────────────────────────────────────────
+
+  app.get('/api/v1/ic/config', async () => {
+    return { data: IC_RULES }
+  })
+
+  // ── IC Decision Evaluation ────────────────────────────────────────
+
+  app.post('/api/v1/memos/:memoId/evaluate-decision', async (request) => {
+    const { memoId } = request.params as { memoId: string }
+    const body = request.body as {
+      checkSize: number
+      foundingPrincipalVoterId: string
+    }
+
+    const memo = memos.find((m) => m.id === memoId)
+    if (!memo) return { error: 'Not found', message: 'Memo not found', statusCode: 404 }
+
+    const memoVotes = votes.filter((v) => v.memoId === memoId)
+    const investVotes = memoVotes.filter((v) => v.vote === 'invest')
+    const hasQuorum = memoVotes.length >= IC_RULES.quorum
+    const foundingPrincipalVoted = memoVotes.some((v) => v.voterId === body.foundingPrincipalVoterId)
+    const foundingPrincipalApproved = investVotes.some((v) => v.voterId === body.foundingPrincipalVoterId)
+    const requiresUnanimous = body.checkSize > IC_RULES.unanimousThreshold
+    const unanimousInvest = investVotes.length === memoVotes.length && memoVotes.length >= IC_RULES.quorum
+
+    const issues: string[] = []
+    if (!hasQuorum) issues.push(`Quorum not met: ${memoVotes.length}/${IC_RULES.quorum} required`)
+    if (!foundingPrincipalVoted) issues.push('Founding Principal has not voted')
+    if (foundingPrincipalVoted && !foundingPrincipalApproved) issues.push('Founding Principal did not vote to invest')
+    if (requiresUnanimous && !unanimousInvest) issues.push(`Checks above $${(IC_RULES.unanimousThreshold / 1e6).toFixed(0)}M require unanimous invest vote`)
+
+    const canProceed = hasQuorum && foundingPrincipalApproved && (!requiresUnanimous || unanimousInvest)
+
+    return {
+      data: {
+        memoId,
+        checkSize: body.checkSize,
+        voteSummary: { total: memoVotes.length, invest: investVotes.length },
+        hasQuorum,
+        foundingPrincipalApproved,
+        requiresUnanimous,
+        unanimousInvest,
+        canProceed,
+        issues,
+        rules: IC_RULES,
+      },
+    }
+  })
+
+  // ── Meeting Cadence ───────────────────────────────────────────────
+
+  app.get('/api/v1/ic/meeting-cadence', async () => {
+    return {
+      data: {
+        dealReview: { frequency: IC_RULES.meetingCadence.dealReview, description: 'Weekly deal review — pipeline status updates' },
+        formalIC: { frequency: IC_RULES.meetingCadence.formalIC, description: 'Monthly IC meeting — formal investment votes' },
+        rules: {
+          quorum: `${IC_RULES.quorum} of ${IC_RULES.totalMembers} members`,
+          foundingPrincipalRequired: IC_RULES.foundingPrincipalVoteRequired,
+          unanimousThreshold: `First checks above $${(IC_RULES.unanimousThreshold / 1e6).toFixed(0)}M require unanimous vote`,
+        },
+      },
+    }
   })
 }

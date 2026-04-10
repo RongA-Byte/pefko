@@ -11,7 +11,9 @@ import type {
   DocumentStatus,
   ComplianceDocumentType,
   LpType,
+  ComplianceJurisdiction,
 } from '@arca/shared'
+import { JURISDICTION_REQUIREMENTS, COMPLIANCE_JURISDICTIONS } from '@arca/shared'
 
 // ── In-memory stores (until DB is connected) ────────────────────────
 
@@ -374,5 +376,90 @@ export async function complianceRoutes(app: FastifyInstance) {
           .slice(0, 10),
       },
     }
+  })
+
+  // ── Jurisdiction Requirements ─────────────────────────────────────
+
+  app.get('/api/v1/compliance/jurisdictions', async () => {
+    return { data: JURISDICTION_REQUIREMENTS }
+  })
+
+  app.get('/api/v1/compliance/jurisdictions/:jurisdiction', async (request) => {
+    const { jurisdiction } = request.params as { jurisdiction: ComplianceJurisdiction }
+    const req = JURISDICTION_REQUIREMENTS[jurisdiction]
+    if (!req) return { error: 'Not found', message: 'Unknown jurisdiction', statusCode: 404 }
+    return { data: { jurisdiction, ...req } }
+  })
+
+  // ── Jurisdiction Compliance Check ─────────────────────────────────
+
+  app.get('/api/v1/compliance/lps/:lpId/jurisdiction-status', async (request) => {
+    const { lpId } = request.params as { lpId: string }
+    const lp = lps.find((l) => l.id === lpId)
+    if (!lp) return { error: 'Not found', message: 'LP not found', statusCode: 404 }
+
+    const lpScreenings = screenings.filter((s) => s.lpId === lpId)
+    const results: Record<string, { compliant: boolean; screeningsCompleted: string[]; screeningsMissing: string[]; notes: string }> = {}
+
+    for (const [jurisdiction, req] of Object.entries(JURISDICTION_REQUIREMENTS)) {
+      const completed = req.requiredScreenings.filter((type) =>
+        lpScreenings.some((s) => s.screeningType === type && s.result === 'clear'),
+      )
+      const missing = req.requiredScreenings.filter((type) =>
+        !lpScreenings.some((s) => s.screeningType === type && s.result === 'clear'),
+      )
+      results[jurisdiction] = {
+        compliant: missing.length === 0,
+        screeningsCompleted: completed,
+        screeningsMissing: missing,
+        notes: req.notes,
+      }
+    }
+
+    return { data: { lpId, lpName: lp.name, jurisdictions: results } }
+  })
+
+  // ── OFAC Sanctions Check ──────────────────────────────────────────
+
+  app.post('/api/v1/compliance/lps/:lpId/ofac-check', async (request) => {
+    const { lpId } = request.params as { lpId: string }
+    const lp = lps.find((l) => l.id === lpId)
+    if (!lp) return { error: 'Not found', message: 'LP not found', statusCode: 404 }
+
+    const screening: KycScreeningRecord = {
+      id: crypto.randomUUID(),
+      lpId,
+      screeningType: 'ofac',
+      result: 'pending',
+      riskLevel: null,
+      provider: 'steward',
+      providerReferenceId: null,
+      details: { type: 'ofac-sdn-check', initiatedAt: new Date().toISOString() },
+      screenedAt: new Date().toISOString(),
+    }
+    screenings.push(screening)
+    return { data: screening }
+  })
+
+  // ── PEP (Politically Exposed Persons) Check ───────────────────────
+
+  app.post('/api/v1/compliance/lps/:lpId/pep-check', async (request) => {
+    const { lpId } = request.params as { lpId: string }
+    const lp = lps.find((l) => l.id === lpId)
+    if (!lp) return { error: 'Not found', message: 'LP not found', statusCode: 404 }
+
+    const screening: KycScreeningRecord = {
+      id: crypto.randomUUID(),
+      lpId,
+      screeningType: 'pep',
+      result: 'pending',
+      riskLevel: null,
+      provider: 'steward',
+      providerReferenceId: null,
+      details: { type: 'pep-screening', initiatedAt: new Date().toISOString() },
+      screenedAt: new Date().toISOString(),
+    }
+    screenings.push(screening)
+    return { data: screening }
   })
 }
