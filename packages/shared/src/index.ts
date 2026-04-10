@@ -1,4 +1,4 @@
-// Shared types for the ARCA fund platform
+// Shared types for the Pefko fund platform
 
 // ── Sectors ──────────────────────────────────────────────────────────
 export const SECTORS = ['ai', 'space-aero', 'bio-medical', 'opportunistic'] as const
@@ -6,7 +6,7 @@ export type Sector = (typeof SECTORS)[number]
 
 // ── Fund Configuration ──────────────────────────────────────────────
 export const FUND_CONFIG = {
-  name: 'ARCA Fund I',
+  name: 'Pefko Fund I',
   targetSize: 75_000_000,
   currency: 'USD',
   managementFee: { investmentPeriod: 0.02, harvest: 0.0175 },

@@ -32,7 +32,7 @@ export default function Home() {
           of deep technology
         </h1>
         <p className="mx-auto mt-6 max-w-2xl text-lg text-[var(--color-muted)]">
-          ARCA is a global venture capital firm backing exceptional founders building
+          Pefko is a global venture capital firm backing exceptional founders building
           transformative companies in AI, space, and life sciences. Pre-seed to Series&nbsp;A.
         </p>
         <div className="mt-10 flex items-center justify-center gap-4">

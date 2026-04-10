@@ -235,7 +235,7 @@ export async function reportingRoutes(app: FastifyInstance) {
           {
             key: 'trl-progression',
             title: 'TRL Progression Report',
-            description: 'Technology readiness advancement per portfolio company (ARCA custom supplement)',
+            description: 'Technology readiness advancement per portfolio company (Pefko custom supplement)',
             required: false,
           },
           {
@@ -247,7 +247,7 @@ export async function reportingRoutes(app: FastifyInstance) {
           {
             key: 'co-investment',
             title: 'Co-Investment Opportunities',
-            description: 'Available co-investment opportunities for LPs (ARCA custom supplement)',
+            description: 'Available co-investment opportunities for LPs (Pefko custom supplement)',
             required: false,
           },
           {

@@ -12,7 +12,7 @@ export function Header() {
     <header className="border-b border-[var(--color-border)]">
       <nav className="mx-auto flex max-w-6xl items-center justify-between px-6 py-5">
         <Link href="/" className="text-xl font-bold tracking-tight">
-          ARCA
+          Pefko
         </Link>
         <ul className="flex items-center gap-8">
           {navLinks.map((link) => (

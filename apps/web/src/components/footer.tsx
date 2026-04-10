@@ -6,7 +6,7 @@ export function Footer() {
       <div className="mx-auto max-w-6xl px-6 py-12">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
           <div>
-            <p className="text-lg font-bold tracking-tight">ARCA</p>
+            <p className="text-lg font-bold tracking-tight">Pefko</p>
             <p className="mt-2 text-sm text-[var(--color-muted)]">
               Global deep-tech venture capital.
               <br />
@@ -54,7 +54,7 @@ export function Footer() {
           </div>
         </div>
         <div className="mt-10 border-t border-[var(--color-border)] pt-6 text-center text-xs text-[var(--color-muted)]">
-          &copy; {new Date().getFullYear()} ARCA. All rights reserved.
+          &copy; {new Date().getFullYear()} Pefko. All rights reserved.
         </div>
       </div>
     </footer>

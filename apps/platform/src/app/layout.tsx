@@ -4,8 +4,8 @@ import { Sidebar } from '@/components/sidebar'
 
 export const metadata: Metadata = {
   title: {
-    default: 'ARCA Platform',
-    template: '%s | ARCA Platform',
+    default: 'Pefko Platform',
+    template: '%s | Pefko Platform',
   },
   description: 'Internal fund management platform',
 }

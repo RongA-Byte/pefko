@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Insights',
-  description: 'Perspectives from ARCA on deep-tech investing, market trends, and the future of frontier technology.',
+  description: 'Perspectives from Pefko on deep-tech investing, market trends, and the future of frontier technology.',
 }
 
 export default function BlogPage() {

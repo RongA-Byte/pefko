@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Team',
-  description: 'Meet the ARCA team — experienced investors and operators building the future of deep-tech venture capital.',
+  description: 'Meet the Pefko team — experienced investors and operators building the future of deep-tech venture capital.',
 }
 
 const team = [
@@ -48,7 +48,7 @@ export default function TeamPage() {
       <div className="mt-16 rounded-xl bg-[var(--color-bg-alt)] p-8 text-center">
         <h2 className="text-xl font-semibold">We&apos;re growing our team</h2>
         <p className="mt-2 text-[var(--color-muted)]">
-          Interested in joining ARCA? We&apos;re looking for exceptional people who share our
+          Interested in joining Pefko? We&apos;re looking for exceptional people who share our
           passion for deep technology.
         </p>
       </div>

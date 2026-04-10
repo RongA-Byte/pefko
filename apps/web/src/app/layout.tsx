@@ -5,8 +5,8 @@ import { Footer } from '@/components/footer'
 
 export const metadata: Metadata = {
   title: {
-    default: 'ARCA — Deep-Tech Venture Capital',
-    template: '%s | ARCA',
+    default: 'Pefko — Deep-Tech Venture Capital',
+    template: '%s | Pefko',
   },
   description:
     'Global venture capital firm investing in transformative deep-tech companies across AI, Space & Aerospace, and Bio & Medical sectors.',
@@ -21,8 +21,8 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_US',
-    siteName: 'ARCA',
-    title: 'ARCA — Deep-Tech Venture Capital',
+    siteName: 'Pefko',
+    title: 'Pefko — Deep-Tech Venture Capital',
     description:
       'Global venture capital investing in AI, Space & Aerospace, and Bio & Medical.',
   },

@@ -31,7 +31,7 @@ app.get('/health', async () => ({
 
 // API v1 routes
 app.get('/api/v1', async () => ({
-  name: 'ARCA Fund Platform API',
+  name: 'Pefko Fund Platform API',
   version: '0.0.1',
 }))
 

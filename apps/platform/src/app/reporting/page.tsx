@@ -69,30 +69,30 @@ const reportSections = [
   {
     key: 'trl-progression',
     title: 'TRL Progression Report',
-    description: 'Technology readiness advancement per portfolio company (ARCA custom supplement)',
+    description: 'Technology readiness advancement per portfolio company (Pefko custom supplement)',
     required: false,
-    source: 'Internal (ARCA custom)',
+    source: 'Internal (Pefko custom)',
   },
   {
     key: 'sector-intelligence',
     title: 'Sector Market Intelligence',
     description: 'Market analysis for AI, Space/Aero, Bio/Medical, and Opportunistic sectors',
     required: false,
-    source: 'Internal (ARCA custom)',
+    source: 'Internal (Pefko custom)',
   },
   {
     key: 'co-investment',
     title: 'Co-Investment Opportunities',
-    description: 'Available co-investment opportunities for LPs (ARCA custom supplement)',
+    description: 'Available co-investment opportunities for LPs (Pefko custom supplement)',
     required: false,
-    source: 'Internal (ARCA custom)',
+    source: 'Internal (Pefko custom)',
   },
   {
     key: 'market-commentary',
     title: 'Market Commentary',
     description: 'GP perspective on market conditions and outlook',
     required: false,
-    source: 'Internal (ARCA custom)',
+    source: 'Internal (Pefko custom)',
   },
 ]
 
@@ -137,7 +137,7 @@ export default function ReportingPage() {
       <div className="mt-8">
         <h2 className="text-lg font-semibold">Quarterly Report Template</h2>
         <p className="mt-1 text-sm text-[var(--color-muted)]">
-          Standard sections plus ARCA custom supplements (TRL progression, sector intel, co-investment)
+          Standard sections plus Pefko custom supplements (TRL progression, sector intel, co-investment)
         </p>
 
         <div className="mt-4 space-y-3">
@@ -247,7 +247,7 @@ export default function ReportingPage() {
       <div className="mt-8 rounded-xl border border-green-200 bg-green-50 p-4">
         <h3 className="text-sm font-semibold text-green-800">Report Data Sources</h3>
         <p className="mt-1 text-sm text-green-700">
-          Quarterly reports combine built-in fund admin output with ARCA custom supplements:
+          Quarterly reports combine built-in fund admin output with Pefko custom supplements:
         </p>
         <div className="mt-3 grid grid-cols-1 gap-3 md:grid-cols-2">
           <div className="rounded-lg bg-white p-3">
@@ -261,7 +261,7 @@ export default function ReportingPage() {
             </ul>
           </div>
           <div className="rounded-lg bg-white p-3">
-            <p className="text-xs font-semibold">Custom Supplements (ARCA Platform)</p>
+            <p className="text-xs font-semibold">Custom Supplements (Pefko Platform)</p>
             <p className="mt-1 text-xs text-green-600">Ready</p>
             <ul className="mt-2 space-y-1 text-xs text-[var(--color-muted)]">
               <li>&bull; TRL progression narratives per company</li>

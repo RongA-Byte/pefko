@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
   title: 'Sectors',
-  description: 'ARCA invests across three core deep-tech verticals: AI, Space & Aerospace, and Bio & Medical Technology.',
+  description: 'Pefko invests across three core deep-tech verticals: AI, Space & Aerospace, and Bio & Medical Technology.',
 }
 
 const sectors = [

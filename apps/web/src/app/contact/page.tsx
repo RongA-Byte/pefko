@@ -3,7 +3,7 @@ import { ContactForm } from '@/components/contact-form'
 
 export const metadata: Metadata = {
   title: 'Contact',
-  description: 'Get in touch with ARCA. We want to hear from founders building transformative deep-tech companies.',
+  description: 'Get in touch with Pefko. We want to hear from founders building transformative deep-tech companies.',
 }
 
 export default function ContactPage() {

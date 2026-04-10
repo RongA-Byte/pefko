@@ -17,7 +17,7 @@ export function Sidebar() {
     <aside className="flex w-60 flex-col border-r border-[var(--color-border)] bg-white">
       <div className="px-5 py-6">
         <Link href="/" className="text-lg font-bold tracking-tight">
-          ARCA
+          Pefko
         </Link>
         <p className="mt-0.5 text-xs text-[var(--color-muted)]">Fund Platform</p>
       </div>
