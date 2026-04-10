@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import { MEMO_TYPES } from '@arca/shared'
+import { MEMO_TYPES, IC_RULES } from '@arca/shared'
 
 export const metadata: Metadata = { title: 'IC Memos' }
 
@@ -51,6 +51,33 @@ export default function MemosPage() {
               )}
             </div>
           ))}
+        </div>
+      </div>
+
+      {/* IC Rules */}
+      <div className="mt-6 rounded-xl border border-[var(--color-border)] bg-white p-6">
+        <h2 className="font-semibold">IC Rules &amp; Governance</h2>
+        <div className="mt-4 grid grid-cols-2 gap-4 md:grid-cols-4">
+          <div className="rounded-lg bg-[var(--color-bg-alt)] p-3">
+            <p className="text-xs font-medium text-[var(--color-muted)]">Quorum</p>
+            <p className="mt-1 text-lg font-bold">{IC_RULES.quorum} of {IC_RULES.totalMembers}</p>
+            <p className="text-xs text-[var(--color-muted)]">members required</p>
+          </div>
+          <div className="rounded-lg bg-[var(--color-bg-alt)] p-3">
+            <p className="text-xs font-medium text-[var(--color-muted)]">Founding Principal</p>
+            <p className="mt-1 text-lg font-bold">Required</p>
+            <p className="text-xs text-[var(--color-muted)]">vote on all investments</p>
+          </div>
+          <div className="rounded-lg bg-[var(--color-bg-alt)] p-3">
+            <p className="text-xs font-medium text-[var(--color-muted)]">Unanimous Threshold</p>
+            <p className="mt-1 text-lg font-bold">${(IC_RULES.unanimousThreshold / 1e6).toFixed(0)}M</p>
+            <p className="text-xs text-[var(--color-muted)]">first checks above this</p>
+          </div>
+          <div className="rounded-lg bg-[var(--color-bg-alt)] p-3">
+            <p className="text-xs font-medium text-[var(--color-muted)]">Meeting Cadence</p>
+            <p className="mt-1 text-sm font-bold capitalize">{IC_RULES.meetingCadence.dealReview} review</p>
+            <p className="text-xs text-[var(--color-muted)] capitalize">{IC_RULES.meetingCadence.formalIC} IC meeting</p>
+          </div>
         </div>
       </div>
 

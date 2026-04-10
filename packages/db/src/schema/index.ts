@@ -14,7 +14,7 @@ import {
 
 // ── Enums ────────────────────────────────────────────────────────────
 
-export const sectorEnum = pgEnum('sector', ['ai', 'space-aero', 'bio-medical'])
+export const sectorEnum = pgEnum('sector', ['ai', 'space-aero', 'bio-medical', 'opportunistic'])
 
 export const dealStageEnum = pgEnum('deal_stage', [
   'sourced',
