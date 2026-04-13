@@ -10,7 +10,12 @@ export const FUND_CONFIG = {
   targetSize: 75_000_000,
   currency: 'USD',
   managementFee: { investmentPeriod: 0.02, harvest: 0.0175 },
-  carry: 0.20,
+  carry: {
+    tiers: [
+      { moicThreshold: 2.0, rate: 0.20 },
+      { moicThreshold: Infinity, rate: 0.25 },
+    ],
+  },
   hurdleRate: 0.08,
   fundLifeYears: 10,
   extensionYears: 2,
@@ -536,13 +541,22 @@ export interface DistributionLineItem {
   proRataPercentage: number
 }
 
+export interface CarryTier {
+  moicThreshold: number
+  rate: number
+}
+
+export interface CarryStructure {
+  readonly tiers: readonly CarryTier[]
+}
+
 export interface FundSummary {
   fundName: string
   vintage: number
   targetSize: number
   currency: string
   managementFee: { investmentPeriod: number; harvest: number }
-  carry: number
+  carry: CarryStructure
   hurdleRate: number
   fundLifeYears: number
   extensionYears: number

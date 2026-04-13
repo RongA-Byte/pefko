@@ -7,7 +7,7 @@ import type {
   PortfolioSectorBreakdown,
   PortfolioStatus,
 } from '@arca/shared'
-import { SECTORS, SECTOR_ALLOCATION_TARGETS, GEO_CONCENTRATION_ALERT_THRESHOLD, INVESTMENT_PARAMS } from '@arca/shared'
+import { SECTORS, SECTOR_ALLOCATION_TARGETS, GEO_CONCENTRATION_ALERT_THRESHOLD, INVESTMENT_PARAMS, FUND_CONFIG } from '@arca/shared'
 
 // ── In-memory stores (until DB is connected) ────────────────────────
 
@@ -30,9 +30,26 @@ function calcFundMetrics(): PortfolioMetrics {
   const dpi = totalInvested > 0 ? totalDistributed / totalInvested : 0
   const rvpi = totalInvested > 0 ? unrealizedValue / totalInvested : 0
 
+  // Tiered carry deduction based on gross MOIC
+  const grossProfit = nav - totalInvested
+  let carryDeduction = 0
+  if (grossProfit > 0 && totalInvested > 0) {
+    const tiers = FUND_CONFIG.carry.tiers
+    let remainingProfit = grossProfit
+    for (let i = 0; i < tiers.length; i++) {
+      const tierCap = tiers[i].moicThreshold * totalInvested - totalInvested
+      const prevCap = i > 0 ? tiers[i - 1].moicThreshold * totalInvested - totalInvested : 0
+      const tierProfit = Math.min(remainingProfit, Math.max(0, tierCap - prevCap))
+      carryDeduction += tierProfit * tiers[i].rate
+      remainingProfit -= tierProfit
+      if (remainingProfit <= 0) break
+    }
+  }
+  const tvpiNet = totalInvested > 0 ? (nav - carryDeduction) / totalInvested : 0
+
   return {
     tvpiGross,
-    tvpiNet: tvpiGross * 0.8, // simplified: 20% carry/fees
+    tvpiNet,
     dpi,
     rvpi,
     irr: null, // requires time-series cash flows
