@@ -32,6 +32,11 @@ jobs:
 
       - name: Build
         run: pnpm turbo build --filter=@arca/web...
+        env:
+          PAGES_BASE_PATH: /pefko
+
+      - name: Add .nojekyll
+        run: touch apps/web/out/.nojekyll
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
