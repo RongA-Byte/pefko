@@ -7,9 +7,9 @@ export const metadata: Metadata = {
 
 const team = [
   {
-    name: 'Founding Partner',
-    role: 'Managing Partner',
-    bio: 'Experienced investor and operator with a track record across AI, deep-tech, and frontier technology companies. Led investments from pre-seed through growth stage across global markets.',
+    name: 'Solia April',
+    role: 'Founding Partner & Managing Director',
+    bio: 'Solia April is the founder of Pefko, a global deep-technology venture capital firm investing at the frontier of artificial intelligence, space and aerospace, and biomedical technology. Based in China with a global investment mandate, she leads all investment activities, chairs the Investment Committee, and manages LP relationships across Asia, the Middle East, and Western capital markets.\n\nPefko targets pre-seed to Series A investments in companies developing transformative technologies with high technical risk and asymmetric return potential. The firm deploys a proprietary Technology Readiness Level scoring framework to evaluate deep-tech ventures across its three core sectors, combining rigorous scientific diligence with commercial judgment.\n\nWith experience spanning cross-border venture investing, deep-tech commercialization, and institutional capital formation, April brings the operational rigor and technical credibility required to identify and develop high-conviction investments in globally ambitious founders. She holds particular expertise in Asia-to-global technology transfer and has built extensive networks across the AI infrastructure, space systems, and biomedical innovation ecosystems.\n\nPefko operates an AI-native investment platform from its Singapore management company, enabling institutional-grade portfolio construction, reporting, and LP transparency at a scale typically reserved for larger fund managers.',
   },
 ]
 
@@ -38,7 +38,11 @@ export default function TeamPage() {
               <div>
                 <h2 className="text-xl font-semibold">{member.name}</h2>
                 <p className="text-sm text-[var(--color-accent)]">{member.role}</p>
-                <p className="mt-3 leading-relaxed text-[var(--color-muted)]">{member.bio}</p>
+                <div className="mt-3 space-y-3 leading-relaxed text-[var(--color-muted)]">
+                  {member.bio.split('\n\n').map((paragraph, i) => (
+                    <p key={i}>{paragraph}</p>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
